@@ -30,8 +30,7 @@
     header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 16px; background: var(--surface);
-      border-bottom: 1px solid var(--border); flex-shrink: 0;
-      gap: 8px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 8px;
     }
     header h1 { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
     #status-dot {
@@ -39,12 +38,9 @@
       flex-shrink: 0; transition: background .3s;
     }
     #status-dot.recording { background: var(--danger); animation: pulse 1.2s infinite; }
-    #status-dot.paused { background: var(--warn); }
-    #status-dot.ready { background: var(--accent); }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: .3; }
-    }
+    #status-dot.paused    { background: var(--warn); }
+    #status-dot.ready     { background: var(--accent); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
     #gps-badge {
       font-size: .65rem; padding: 2px 7px; border-radius: 99px;
@@ -58,8 +54,7 @@
     /* Stats bar */
     #stats {
       display: grid; grid-template-columns: repeat(4, 1fr);
-      background: var(--surface); border-top: 1px solid var(--border);
-      flex-shrink: 0;
+      background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0;
     }
     .stat {
       display: flex; flex-direction: column; align-items: center;
@@ -72,25 +67,22 @@
     /* Controls */
     #controls {
       display: flex; gap: 10px; padding: 12px 16px;
-      background: var(--surface); border-top: 1px solid var(--border);
-      flex-shrink: 0;
+      background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0;
     }
-
     button {
       flex: 1; border: none; border-radius: var(--radius); padding: 14px 8px;
-      font-size: .85rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s;
-      letter-spacing: .03em;
+      font-size: .85rem; font-weight: 600; cursor: pointer;
+      transition: opacity .15s, transform .1s; letter-spacing: .03em;
     }
     button:active { transform: scale(.97); }
     button:disabled { opacity: .35; cursor: not-allowed; }
-
     #btn-start  { background: var(--accent); color: #052e16; }
     #btn-pause  { background: var(--warn); color: #451a03; display: none; }
     #btn-stop   { background: var(--danger); color: #450a0a; display: none; }
     #btn-export { background: var(--border); color: var(--text); }
     #btn-center { background: var(--border); color: var(--text); flex: 0 0 48px; font-size: 1.1rem; padding: 14px 0; }
 
-    /* Tracks list modal */
+    /* Tracks button */
     #tracks-btn {
       position: fixed; top: 56px; right: 12px; z-index: 800;
       background: var(--surface); border: 1px solid var(--border);
@@ -103,44 +95,73 @@
       border-radius: 99px; padding: 1px 6px; font-size: .65rem;
     }
 
-    /* Overlay */
-    #overlay {
+    /* Generic overlay */
+    .overlay {
       display: none; position: fixed; inset: 0; z-index: 900;
       background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
       align-items: flex-end;
     }
-    #overlay.open { display: flex; }
+    .overlay.open { display: flex; }
 
+    /* Bottom panel (tracks list) */
     #panel {
       width: 100%; max-height: 70dvh; background: var(--surface);
       border-radius: var(--radius) var(--radius) 0 0;
       border-top: 1px solid var(--border);
       display: flex; flex-direction: column;
     }
-
     #panel-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 16px; border-bottom: 1px solid var(--border);
     }
     #panel-header h2 { font-size: .95rem; }
     #panel-close { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 6px 14px; font-size: .8rem; }
-
     #tracks-list { overflow-y: auto; padding: 8px; flex: 1; }
+
     .track-item {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: flex-start; gap: 10px;
       padding: 12px; border-radius: 8px; border: 1px solid var(--border);
       margin-bottom: 6px; background: var(--bg);
     }
     .track-info { flex: 1; min-width: 0; }
-    .track-name { font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-meta { font-size: .7rem; color: var(--muted); margin-top: 2px; }
-    .track-actions { display: flex; gap: 6px; }
+    .track-title { font-size: .9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-author { font-size: .75rem; color: var(--accent); margin-top: 1px; }
+    .track-meta { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+    .track-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .track-actions button { flex: 0 0 auto; padding: 7px 10px; font-size: .7rem; }
-    .btn-dl { background: var(--accent-dim); color: var(--accent); }
-    .btn-rm { background: var(--danger-dim); color: var(--danger); }
+    .btn-dl   { background: var(--accent-dim); color: var(--accent); }
+    .btn-rm   { background: var(--danger-dim); color: var(--danger); }
     .btn-show { background: var(--border); color: var(--text); }
-
     .empty-msg { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 16px; }
+
+    /* Save dialog — centered card */
+    #save-overlay {
+      display: none; position: fixed; inset: 0; z-index: 950;
+      background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    #save-overlay.open { display: flex; }
+    #save-card {
+      width: 100%; max-width: 420px; background: var(--surface);
+      border-radius: var(--radius); border: 1px solid var(--border);
+      padding: 24px; display: flex; flex-direction: column; gap: 16px;
+    }
+    #save-card h2 { font-size: 1rem; font-weight: 700; }
+    #save-card h2 span { color: var(--muted); font-weight: 400; font-size: .8rem; margin-left: 6px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .field input {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: .95rem; padding: 11px 13px;
+      outline: none; transition: border-color .15s;
+      font-family: inherit;
+    }
+    .field input:focus { border-color: var(--accent); }
+
+    .save-actions { display: flex; gap: 10px; margin-top: 4px; }
+    #btn-save-confirm { background: var(--accent); color: #052e16; }
+    #btn-save-discard { background: var(--border); color: var(--muted); flex: 0 0 auto; padding: 14px 18px; }
 
     /* Toast */
     #toast {
@@ -183,13 +204,33 @@
 
 <button id="tracks-btn">Tracce <span class="count" id="tracks-count">0</span></button>
 
-<div id="overlay">
+<!-- Tracks list panel -->
+<div id="overlay" class="overlay">
   <div id="panel">
     <div id="panel-header">
       <h2>Tracce salvate</h2>
       <button id="panel-close">Chiudi</button>
     </div>
     <div id="tracks-list"></div>
+  </div>
+</div>
+
+<!-- Save dialog -->
+<div id="save-overlay" class="overlay" style="align-items:center;justify-content:center">
+  <div id="save-card">
+    <h2>Salva traccia <span id="save-stats-hint"></span></h2>
+    <div class="field">
+      <label>Titolo</label>
+      <input id="inp-title" type="text" placeholder="Es. Giro del lago" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Autore</label>
+      <input id="inp-author" type="text" placeholder="Il tuo nome" autocomplete="off" />
+    </div>
+    <div class="save-actions">
+      <button id="btn-save-confirm">Salva</button>
+      <button id="btn-save-discard">Scarta</button>
+    </div>
   </div>
 </div>
 
@@ -214,21 +255,22 @@ const posIcon = L.divIcon({
 let posMarker = null;
 let accuracyCircle = null;
 let trackPolyline = null;
-let ghostPolylines = []; // previously shown tracks
+let ghostPolylines = [];
 
 // ── State ──────────────────────────────────────────────────────────────────
 const STATE = { IDLE: 0, RECORDING: 1, PAUSED: 2 };
 let state = STATE.IDLE;
-let points = [];        // { lat, lon, ele, time }
+let points = [];
 let watchId = null;
 let timerInterval = null;
 let startTime = null;
 let pausedMs = 0;
 let pauseStart = null;
 let lastPos = null;
-let totalDist = 0;      // metres
-let currentSpeed = 0;   // km/h
+let totalDist = 0;
+let currentSpeed = 0;
 let centered = false;
+let pendingTrack = null;  // track data waiting to be named
 
 // ── Storage ────────────────────────────────────────────────────────────────
 function loadTracks() {
@@ -236,6 +278,12 @@ function loadTracks() {
 }
 function saveTracks(tracks) {
   localStorage.setItem('gpx_tracks', JSON.stringify(tracks));
+}
+function loadLastAuthor() {
+  return localStorage.getItem('gpx_last_author') || '';
+}
+function saveLastAuthor(name) {
+  if (name.trim()) localStorage.setItem('gpx_last_author', name.trim());
 }
 
 // ── Geo helpers ────────────────────────────────────────────────────────────
@@ -253,25 +301,35 @@ function fmtDuration(ms) {
     : `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
 }
 
+function defaultTitle() {
+  return `Traccia ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 // ── GPX builder ────────────────────────────────────────────────────────────
-function buildGpx(pts, name) {
+function buildGpx(pts, title, author) {
   const trkpts = pts.map(p =>
     `      <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lon.toFixed(7)}">\n` +
     (p.ele != null ? `        <ele>${p.ele.toFixed(1)}</ele>\n` : '') +
     `        <time>${new Date(p.time).toISOString()}</time>\n      </trkpt>`
   ).join('\n');
+  const authorBlock = author
+    ? `    <author><name>${escXml(author)}</name></author>\n`
+    : '';
   return `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<gpx version="1.1" creator="GPS Tracker Web" xmlns="http://www.topografix.com/GPX/1/1"\n` +
     `     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n` +
     `     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n` +
-    `  <trk>\n    <name>${escXml(name)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
+    `  <metadata>\n    <name>${escXml(title)}</name>\n` + authorBlock +
+    `    <time>${new Date().toISOString()}</time>\n  </metadata>\n` +
+    `  <trk>\n    <name>${escXml(title)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
 }
 
 function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function downloadGpx(pts, name) {
-  const blob = new Blob([buildGpx(pts, name)], { type: 'application/gpx+xml' });
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${name}.gpx` });
+function downloadGpx(pts, title, author) {
+  const blob = new Blob([buildGpx(pts, title, author || '')], { type: 'application/gpx+xml' });
+  const fname = title.replace(/[/\\?%*:|"<>]/g, '-');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${fname}.gpx` });
   a.click(); URL.revokeObjectURL(a.href);
 }
 
@@ -281,7 +339,7 @@ function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 function updateStats() {
@@ -304,8 +362,9 @@ function setUIState(s) {
   document.getElementById('btn-stop').style.display = 'none';
 
   if (s === STATE.IDLE) {
+    document.getElementById('btn-start').textContent = '▶ Avvia';
     document.getElementById('btn-start').style.display = '';
-    document.getElementById('btn-export').disabled = points.length === 0;
+    document.getElementById('btn-export').disabled = loadTracks().length === 0;
   } else if (s === STATE.RECORDING) {
     document.getElementById('btn-pause').style.display = '';
     document.getElementById('btn-stop').style.display = '';
@@ -324,6 +383,45 @@ function updateTracksCount() {
   document.getElementById('tracks-count').textContent = loadTracks().length;
 }
 
+// ── Save dialog ────────────────────────────────────────────────────────────
+function showSaveDialog(track) {
+  pendingTrack = track;
+  document.getElementById('inp-title').value = defaultTitle();
+  document.getElementById('inp-author').value = loadLastAuthor();
+  document.getElementById('save-stats-hint').textContent =
+    `· ${(track.dist/1000).toFixed(2)} km · ${fmtDuration(track.duration)}`;
+  document.getElementById('save-overlay').classList.add('open');
+  document.getElementById('inp-title').focus();
+  document.getElementById('inp-title').select();
+}
+
+function closeSaveDialog() {
+  document.getElementById('save-overlay').classList.remove('open');
+  pendingTrack = null;
+}
+
+document.getElementById('btn-save-confirm').addEventListener('click', () => {
+  if (!pendingTrack) return;
+  const title  = document.getElementById('inp-title').value.trim() || defaultTitle();
+  const author = document.getElementById('inp-author').value.trim();
+  saveLastAuthor(author);
+
+  const tracks = loadTracks();
+  tracks.unshift({ ...pendingTrack, title, author });
+  saveTracks(tracks);
+  updateTracksCount();
+  closeSaveDialog();
+  document.getElementById('btn-export').disabled = false;
+  setUIState(STATE.IDLE);
+  toast(`"${title}" salvata — ${(pendingTrack.dist/1000).toFixed(2)} km`);
+});
+
+document.getElementById('btn-save-discard').addEventListener('click', () => {
+  closeSaveDialog();
+  setUIState(STATE.IDLE);
+  toast('Traccia scartata');
+});
+
 // ── Geolocation ────────────────────────────────────────────────────────────
 function startWatch() {
   if (watchId !== null) return;
@@ -340,15 +438,12 @@ function onPosition(pos) {
   const { latitude: lat, longitude: lon, altitude: ele, accuracy, speed } = pos.coords;
   const time = pos.timestamp;
 
-  // Update GPS badge
   const badge = document.getElementById('gps-badge');
   badge.textContent = `±${Math.round(accuracy)}m`;
   badge.className = accuracy < 20 ? 'good' : '';
 
-  // Current speed from browser (m/s → km/h)
   if (speed != null) currentSpeed = speed * 3.6;
 
-  // Update marker
   const latlng = [lat, lon];
   if (!posMarker) {
     posMarker = L.marker(latlng, { icon: posIcon, zIndexOffset: 1000 }).addTo(map);
@@ -361,29 +456,24 @@ function onPosition(pos) {
     accuracyCircle.setLatLng(latlng).setRadius(accuracy);
   }
 
-  // Auto-center on first fix
   if (!centered) { map.setView(latlng, 16); centered = true; }
   document.getElementById('status-dot').classList.add('ready');
 
   if (state !== STATE.RECORDING) return;
 
-  // Add point
   const pt = { lat, lon, ele, time };
   points.push(pt);
 
-  // Distance
   if (lastPos) {
     const d = haversine(lastPos, pt);
     totalDist += d;
     if (speed == null) {
-      // estimate speed from last two points
       const dt = (time - lastPos.time) / 1000;
       if (dt > 0) currentSpeed = (d / dt) * 3.6;
     }
   }
   lastPos = pt;
 
-  // Draw polyline
   const lls = points.map(p => [p.lat, p.lon]);
   if (!trackPolyline) {
     trackPolyline = L.polyline(lls, { color: '#4ade80', weight: 4, opacity: .85 }).addTo(map);
@@ -402,14 +492,12 @@ function onGeoError(err) {
 // ── Recording controls ─────────────────────────────────────────────────────
 function startRecording() {
   if (state === STATE.IDLE) {
-    // Fresh start
     points = []; totalDist = 0; currentSpeed = 0; lastPos = null;
     startTime = Date.now(); pausedMs = 0;
     if (trackPolyline) { map.removeLayer(trackPolyline); trackPolyline = null; }
     document.getElementById('s-time').textContent = '00:00';
     updateStats();
   } else if (state === STATE.PAUSED) {
-    // Resume
     pausedMs += Date.now() - pauseStart;
   }
   state = STATE.RECORDING;
@@ -438,24 +526,16 @@ function stopRecording() {
     return;
   }
 
-  // Save track
-  const tracks = loadTracks();
-  const name = `Traccia ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
   const elapsed = Date.now() - startTime - pausedMs;
-  tracks.unshift({ name, points, dist: totalDist, duration: elapsed, date: Date.now() });
-  saveTracks(tracks);
-  updateTracksCount();
-  toast(`Traccia salvata: ${(totalDist/1000).toFixed(2)} km`);
-
-  document.getElementById('btn-export').disabled = false;
-  setUIState(STATE.IDLE);
+  showSaveDialog({ points, dist: totalDist, duration: elapsed, date: Date.now() });
 }
 
-// ── Export current / last track ────────────────────────────────────────────
+// ── Export latest track ────────────────────────────────────────────────────
 document.getElementById('btn-export').addEventListener('click', () => {
   const tracks = loadTracks();
   if (!tracks.length) return;
-  downloadGpx(tracks[0].points, tracks[0].name);
+  const t = tracks[0];
+  downloadGpx(t.points, t.title || t.name || 'traccia', t.author);
 });
 
 // ── Button wiring ──────────────────────────────────────────────────────────
@@ -475,18 +555,24 @@ function renderTracksList() {
     list.innerHTML = '<p class="empty-msg">Nessuna traccia salvata.<br>Premi Avvia per registrare.</p>';
     return;
   }
-  list.innerHTML = tracks.map((t, i) => `
+  list.innerHTML = tracks.map((t, i) => {
+    const title  = escXml(t.title || t.name || 'Traccia');
+    const author = t.author ? `<div class="track-author">${escXml(t.author)}</div>` : '';
+    const date   = t.date ? new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) : '';
+    return `
     <div class="track-item" data-i="${i}">
       <div class="track-info">
-        <div class="track-name">${escXml(t.name)}</div>
-        <div class="track-meta">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${t.points.length} pt</div>
+        <div class="track-title">${title}</div>
+        ${author}
+        <div class="track-meta">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${t.points.length} pt${date ? ' · ' + date : ''}</div>
       </div>
       <div class="track-actions">
         <button class="btn-show" data-action="show" data-i="${i}">🗺</button>
-        <button class="btn-dl" data-action="dl" data-i="${i}">↓</button>
-        <button class="btn-rm" data-action="rm" data-i="${i}">✕</button>
+        <button class="btn-dl"   data-action="dl"   data-i="${i}">↓</button>
+        <button class="btn-rm"   data-action="rm"   data-i="${i}">✕</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 document.getElementById('tracks-btn').addEventListener('click', () => {
@@ -509,16 +595,16 @@ document.getElementById('tracks-list').addEventListener('click', e => {
   const t = tracks[parseInt(i)];
 
   if (action === 'dl') {
-    downloadGpx(t.points, t.name);
+    downloadGpx(t.points, t.title || t.name || 'traccia', t.author);
   } else if (action === 'rm') {
-    if (!confirm(`Eliminare "${t.name}"?`)) return;
+    const label = t.title || t.name || 'questa traccia';
+    if (!confirm(`Eliminare "${label}"?`)) return;
     tracks.splice(parseInt(i), 1);
     saveTracks(tracks);
     updateTracksCount();
     renderTracksList();
     toast('Traccia eliminata');
   } else if (action === 'show') {
-    // Show ghost track on map
     ghostPolylines.forEach(p => map.removeLayer(p));
     ghostPolylines = [];
     const lls = t.points.map(p => [p.lat, p.lon]);
@@ -526,7 +612,7 @@ document.getElementById('tracks-list').addEventListener('click', e => {
     ghostPolylines.push(pl);
     map.fitBounds(pl.getBounds(), { padding: [30, 30] });
     document.getElementById('overlay').classList.remove('open');
-    toast(t.name);
+    toast(t.title || t.name || 'Traccia');
   }
 });
 
@@ -534,7 +620,6 @@ document.getElementById('tracks-list').addEventListener('click', e => {
 setUIState(STATE.IDLE);
 updateTracksCount();
 
-// Start watching position immediately for map centering (not recording)
 if ('geolocation' in navigator) {
   startWatch();
 } else {
