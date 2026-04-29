@@ -9,46 +9,30 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --border: #2a2d3a;
-      --accent: #4ade80;
-      --accent-dim: #166534;
-      --danger: #f87171;
-      --danger-dim: #7f1d1d;
-      --warn: #fbbf24;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --radius: 12px;
+      --bg: #0f1117; --surface: #1a1d27; --border: #2a2d3a;
+      --accent: #4ade80; --accent-dim: #166534;
+      --danger: #f87171; --danger-dim: #7f1d1d;
+      --warn: #fbbf24; --blue: #60a5fa; --blue-dim: #1e3a5f;
+      --text: #e2e8f0; --muted: #64748b; --radius: 12px;
     }
-
     html, body { height: 100%; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
-    /* ── Login screen ── */
+    /* ── Login ── */
     #login-screen {
-      position: fixed; inset: 0; z-index: 2000;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      position: fixed; inset: 0; z-index: 2000; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 32px 24px; gap: 32px;
     }
     #login-screen.hidden { display: none; }
-    .login-logo { font-size: 2.5rem; }
+    .login-logo  { font-size: 2.5rem; }
     .login-title { font-size: 1.4rem; font-weight: 800; letter-spacing: .04em; }
-    .login-sub { font-size: .85rem; color: var(--muted); }
-    #user-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 12px; width: 100%; max-width: 400px;
-    }
+    .login-sub   { font-size: .85rem; color: var(--muted); }
+    #user-grid   { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; width: 100%; max-width: 400px; }
     .user-btn {
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); border-radius: var(--radius);
-      padding: 20px 12px; font-size: 1rem; font-weight: 700;
-      cursor: pointer; flex: none;
-      transition: background .15s, border-color .15s, transform .1s;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      border-radius: var(--radius); padding: 20px 12px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; flex: none; transition: background .15s, border-color .15s, transform .1s;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
     .user-btn:active { transform: scale(.96); }
@@ -62,7 +46,6 @@
 
     /* ── App ── */
     #app { display: flex; flex-direction: column; height: 100dvh; }
-
     header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 16px; background: var(--surface);
@@ -71,56 +54,26 @@
     .header-left  { display: flex; align-items: center; gap: 8px; }
     .header-right { display: flex; align-items: center; gap: 8px; }
     header h1 { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
-
-    #user-badge {
-      font-size: .75rem; font-weight: 600;
-      background: var(--accent-dim); color: var(--accent);
-      padding: 3px 10px; border-radius: 99px;
-    }
-    #btn-logout {
-      font-size: .7rem; padding: 4px 10px; border-radius: 99px;
-      background: var(--border); color: var(--muted);
-      border: none; cursor: pointer; flex: 0 0 auto;
-    }
-
-    #status-dot {
-      width: 10px; height: 10px; border-radius: 50%; background: var(--muted);
-      flex-shrink: 0; transition: background .3s;
-    }
+    #user-badge { font-size: .75rem; font-weight: 600; background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; }
+    #btn-logout { font-size: .7rem; padding: 4px 10px; border-radius: 99px; background: var(--border); color: var(--muted); border: none; cursor: pointer; flex: 0 0 auto; }
+    #status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background .3s; }
     #status-dot.recording { background: var(--danger); animation: pulse 1.2s infinite; }
     #status-dot.paused    { background: var(--warn); }
     #status-dot.ready     { background: var(--accent); }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-
-    #gps-badge {
-      font-size: .65rem; padding: 2px 7px; border-radius: 99px;
-      background: var(--border); color: var(--muted); letter-spacing: .04em;
-    }
+    #gps-badge { font-size: .65rem; padding: 2px 7px; border-radius: 99px; background: var(--border); color: var(--muted); letter-spacing: .04em; }
     #gps-badge.good { background: var(--accent-dim); color: var(--accent); }
 
     #map { flex: 1; min-height: 0; z-index: 0; }
 
-    #stats {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0;
-    }
-    .stat {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 10px 4px; border-right: 1px solid var(--border);
-    }
+    #stats { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0; }
+    .stat { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border-right: 1px solid var(--border); }
     .stat:last-child { border-right: none; }
     .stat-val { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .stat-lbl { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
 
-    #controls {
-      display: flex; gap: 10px; padding: 12px 16px;
-      background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0;
-    }
-    button {
-      flex: 1; border: none; border-radius: var(--radius); padding: 14px 8px;
-      font-size: .85rem; font-weight: 600; cursor: pointer;
-      transition: opacity .15s, transform .1s; letter-spacing: .03em;
-    }
+    #controls { display: flex; gap: 10px; padding: 12px 16px; background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0; }
+    button { flex: 1; border: none; border-radius: var(--radius); padding: 14px 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; letter-spacing: .03em; }
     button:active { transform: scale(.97); }
     button:disabled { opacity: .35; cursor: not-allowed; }
     #btn-start  { background: var(--accent); color: #052e16; }
@@ -129,90 +82,96 @@
     #btn-export { background: var(--border); color: var(--text); }
     #btn-center { background: var(--border); color: var(--text); flex: 0 0 48px; font-size: 1.1rem; padding: 14px 0; }
     #tracks-btn { background: var(--border); color: var(--text); }
-    #tracks-btn .count {
-      background: var(--accent); color: #052e16;
-      border-radius: 99px; padding: 1px 6px; font-size: .65rem;
-    }
+    #tracks-btn .count { background: var(--accent); color: #052e16; border-radius: 99px; padding: 1px 6px; font-size: .65rem; }
 
     /* ── Overlays ── */
-    .overlay {
-      display: none; position: fixed; inset: 0; z-index: 900;
-      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-      align-items: flex-end;
-    }
+    .overlay { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); align-items: flex-end; }
     .overlay.open { display: flex; }
 
-    #panel {
-      width: 100%; max-height: 75dvh; background: var(--surface);
-      border-radius: var(--radius) var(--radius) 0 0;
-      border-top: 1px solid var(--border); display: flex; flex-direction: column;
-    }
-    #panel-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px; border-bottom: 1px solid var(--border);
-    }
+    /* ── Tracks list panel ── */
+    #panel { width: 100%; max-height: 75dvh; background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; }
+    #panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); }
     #panel-header h2 { font-size: .95rem; }
     #panel-close { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 6px 14px; font-size: .8rem; }
     #tracks-list { overflow-y: auto; padding: 8px; flex: 1; }
-
-    .track-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-      margin-bottom: 6px; background: var(--bg);
-    }
+    .track-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 6px; background: var(--bg); cursor: pointer; transition: border-color .15s; }
+    .track-item:active { border-color: var(--accent); }
     .track-info { flex: 1; min-width: 0; }
-    .track-title  { font-size: .9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-author { font-size: .75rem; color: var(--accent); margin-top: 1px; }
-    .track-meta   { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+    .track-title { font-size: .9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-summary { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+    .track-chevron { color: var(--muted); font-size: .9rem; flex-shrink: 0; }
     .track-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .track-actions button { flex: 0 0 auto; padding: 7px 10px; font-size: .7rem; }
     .btn-dl    { background: var(--accent-dim); color: var(--accent); }
     .btn-rm    { background: var(--danger-dim); color: var(--danger); }
-    .btn-show  { background: var(--border); color: var(--text); }
-    .btn-share { background: #1e3a5f; color: #60a5fa; }
+    .btn-share { background: var(--blue-dim); color: var(--blue); }
     .empty-msg { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 16px; }
 
+    /* ── Detail panel ── */
+    #detail-overlay { display: none; position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); align-items: flex-end; }
+    #detail-overlay.open { display: flex; }
+    #detail-panel { width: 100%; max-height: 90dvh; background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; }
+    #detail-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); gap: 12px; flex-shrink: 0; }
+    #detail-header-text { flex: 1; min-width: 0; }
+    #detail-track-title { font-size: 1.05rem; font-weight: 800; }
+    #detail-track-meta  { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+    #detail-close { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 6px 14px; font-size: .8rem; }
+    #detail-body { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px; flex: 1; }
+
+    /* Stats grid */
+    .detail-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .detail-stat {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .detail-stat-val  { font-size: 1.4rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .detail-stat-lbl  { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .detail-stat.accent .detail-stat-val { color: var(--accent); }
+    .detail-stat.blue   .detail-stat-val { color: var(--blue); }
+    .detail-stat.warn   .detail-stat-val { color: var(--warn); }
+
+    /* Altitude section */
+    .section-title { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .alt-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .alt-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .alt-card-val { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .alt-card-lbl { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    .alt-card.start .alt-card-val { color: var(--accent); }
+    .alt-card.peak  .alt-card-val { color: var(--warn); }
+    .alt-card.end   .alt-card-val { color: var(--blue); }
+    .chart-wrap { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+
+    /* Detail actions */
+    .detail-actions { display: flex; gap: 10px; padding-bottom: 4px; }
+    .detail-actions button { font-size: .85rem; padding: 13px 8px; }
+    .btn-detail-map   { background: var(--border); color: var(--text); }
+    .btn-detail-share { background: var(--blue-dim); color: var(--blue); }
+    .btn-detail-dl    { background: var(--accent-dim); color: var(--accent); }
+    .btn-detail-rm    { background: var(--danger-dim); color: var(--danger); flex: 0 0 48px; }
+
     /* ── Save dialog ── */
-    #save-overlay {
-      display: none; position: fixed; inset: 0; z-index: 950;
-      background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
-      align-items: center; justify-content: center; padding: 20px;
-    }
+    #save-overlay { display: none; position: fixed; inset: 0; z-index: 960; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
     #save-overlay.open { display: flex; }
-    #save-card {
-      width: 100%; max-width: 420px; background: var(--surface);
-      border-radius: var(--radius); border: 1px solid var(--border);
-      padding: 24px; display: flex; flex-direction: column; gap: 16px;
-    }
+    #save-card { width: 100%; max-width: 420px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
     #save-card h2 { font-size: 1rem; font-weight: 700; }
     #save-card h2 span { color: var(--muted); font-weight: 400; font-size: .8rem; margin-left: 6px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-    .field input {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--text); font-size: .95rem; padding: 11px 13px;
-      outline: none; transition: border-color .15s; font-family: inherit;
-    }
-    .field input:focus  { border-color: var(--accent); }
+    .field input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: .95rem; padding: 11px 13px; outline: none; transition: border-color .15s; font-family: inherit; }
+    .field input:focus   { border-color: var(--accent); }
     .field input[readonly] { color: var(--muted); cursor: default; }
     .save-actions { display: flex; gap: 10px; margin-top: 4px; }
     #btn-save-confirm { background: var(--accent); color: #052e16; }
     #btn-save-discard { background: var(--border); color: var(--muted); flex: 0 0 auto; padding: 14px 18px; }
 
     /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%);
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 18px; border-radius: 99px;
-      font-size: .8rem; z-index: 1000; opacity: 0;
-      transition: opacity .25s; pointer-events: none; white-space: nowrap;
-    }
+    #toast { position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: 99px; font-size: .8rem; z-index: 1100; opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap; }
     #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-<!-- ── Login screen ── -->
+<!-- ── Login ── -->
 <div id="login-screen">
   <div class="login-logo">📍</div>
   <div style="text-align:center">
@@ -235,16 +194,13 @@
       <button id="btn-logout">Esci</button>
     </div>
   </header>
-
   <div id="map"></div>
-
   <div id="stats">
     <div class="stat"><span class="stat-val" id="s-dist">0.00</span><span class="stat-lbl">km</span></div>
     <div class="stat"><span class="stat-val" id="s-time">00:00</span><span class="stat-lbl">durata</span></div>
     <div class="stat"><span class="stat-val" id="s-speed">0.0</span><span class="stat-lbl">km/h</span></div>
     <div class="stat"><span class="stat-val" id="s-pts">0</span><span class="stat-lbl">punti</span></div>
   </div>
-
   <div id="controls">
     <button id="btn-start">▶ Avvia</button>
     <button id="btn-pause" style="display:none">⏸ Pausa</button>
@@ -255,7 +211,7 @@
   </div>
 </div>
 
-<!-- Tracks list panel -->
+<!-- ── Tracks list ── -->
 <div id="overlay" class="overlay">
   <div id="panel">
     <div id="panel-header">
@@ -266,7 +222,21 @@
   </div>
 </div>
 
-<!-- Save dialog -->
+<!-- ── Track detail ── -->
+<div id="detail-overlay">
+  <div id="detail-panel">
+    <div id="detail-header">
+      <div id="detail-header-text">
+        <div id="detail-track-title"></div>
+        <div id="detail-track-meta"></div>
+      </div>
+      <button id="detail-close">Chiudi</button>
+    </div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- ── Save dialog ── -->
 <div id="save-overlay" class="overlay" style="align-items:center;justify-content:center">
   <div id="save-card">
     <h2>Salva traccia <span id="save-stats-hint"></span></h2>
@@ -298,11 +268,10 @@ const USERS = [
   'Stefano',
 ];
 
-// ── Map setup ──────────────────────────────────────────────────────────────
+// ── Map ────────────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl: true, attributionControl: false });
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  subdomains: 'abcd', maxZoom: 20,
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>'
+  subdomains: 'abcd', maxZoom: 20
 }).addTo(map);
 L.control.attribution({ position: 'bottomleft', prefix: false })
   .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>').addTo(map);
@@ -321,6 +290,7 @@ let points = [], watchId = null, timerInterval = null;
 let startTime = null, pausedMs = 0, pauseStart = null;
 let lastPos = null, totalDist = 0, currentSpeed = 0, centered = false;
 let pendingTrack = null;
+let detailTrackIndex = null;
 
 // ── Auth ───────────────────────────────────────────────────────────────────
 let currentUser = localStorage.getItem('gpx_current_user') || null;
@@ -337,10 +307,7 @@ function login(name) {
 }
 
 function logout() {
-  if (state !== STATE.IDLE) {
-    toast('Ferma la registrazione prima di uscire');
-    return;
-  }
+  if (state !== STATE.IDLE) { toast('Ferma la registrazione prima di uscire'); return; }
   currentUser = null;
   localStorage.removeItem('gpx_current_user');
   document.getElementById('login-screen').classList.remove('hidden');
@@ -350,7 +317,6 @@ function logout() {
 
 document.getElementById('btn-logout').addEventListener('click', logout);
 
-// Build login buttons
 (function buildLoginUI() {
   const grid = document.getElementById('user-grid');
   USERS.forEach(name => {
@@ -362,34 +328,208 @@ document.getElementById('btn-logout').addEventListener('click', logout);
   });
 })();
 
-// ── Storage (per utente) ───────────────────────────────────────────────────
-function storageKey() {
-  return `gpx_tracks_${(currentUser || 'default').toLowerCase()}`;
-}
-function loadTracks() {
-  try { return JSON.parse(localStorage.getItem(storageKey()) || '[]'); } catch { return []; }
-}
-function saveTracks(tracks) {
-  localStorage.setItem(storageKey(), JSON.stringify(tracks));
-}
+// ── Storage ────────────────────────────────────────────────────────────────
+function storageKey() { return `gpx_tracks_${(currentUser || 'default').toLowerCase()}`; }
+function loadTracks()  { try { return JSON.parse(localStorage.getItem(storageKey()) || '[]'); } catch { return []; } }
+function saveTracks(t) { localStorage.setItem(storageKey(), JSON.stringify(t)); }
 
 // ── Geo helpers ────────────────────────────────────────────────────────────
 function haversine(a, b) {
-  const R = 6371000, toRad = d => d * Math.PI / 180;
-  const dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
-  const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon/2)**2;
+  const R = 6371000, r = d => d * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLon = r(b.lon - a.lon);
+  const s = Math.sin(dLat/2)**2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLon/2)**2;
   return R * 2 * Math.asin(Math.sqrt(s));
 }
 
 function fmtDuration(ms) {
-  const s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60);
+  const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60);
   return h > 0
-    ? `${h}:${String(m % 60).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`
-    : `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+    ? `${h}:${String(m%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
 
+function fmtPace(ms, distM) {
+  if (!distM) return '—';
+  const msPerKm = ms / (distM / 1000);
+  const m = Math.floor(msPerKm / 60000);
+  const s = Math.floor((msPerKm % 60000) / 1000);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function fmtAlt(v) { return v != null ? Math.round(v) + ' m' : '—'; }
+
 function defaultTitle() {
-  return `Traccia ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+  return `Traccia ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })}`;
+}
+
+// ── Altitude stats ─────────────────────────────────────────────────────────
+function altStats(points) {
+  const pts = points.filter(p => p.ele != null && !isNaN(p.ele));
+  if (!pts.length) return null;
+  const alts = pts.map(p => p.ele);
+  return {
+    start: pts[0].ele,
+    end:   pts[pts.length - 1].ele,
+    max:   Math.max(...alts),
+    min:   Math.min(...alts),
+    pts
+  };
+}
+
+// ── Altitude chart (SVG) ───────────────────────────────────────────────────
+function buildAltitudeChart(points) {
+  const as = altStats(points);
+  if (!as || as.pts.length < 2) {
+    return '<p style="color:var(--muted);font-size:.78rem;text-align:center;padding:18px 0">Dati altitudine non disponibili</p>';
+  }
+
+  const W = 320, H = 110;
+  const pL = 46, pR = 10, pT = 14, pB = 22;
+  const cW = W - pL - pR, cH = H - pT - pB;
+  const range = as.max - as.min || 1;
+
+  // Cumulative distance for X axis
+  const cum = [0];
+  for (let i = 1; i < as.pts.length; i++) cum.push(cum[i-1] + haversine(as.pts[i-1], as.pts[i]));
+  const totD = cum[cum.length - 1] || 1;
+
+  const toX = d => pL + (d / totD) * cW;
+  const toY = a => pT + cH - ((a - as.min) / range) * cH;
+  const coords = as.pts.map((p, i) => ({ x: toX(cum[i]), y: toY(p.ele) }));
+
+  const line = coords.map((c, i) => `${i ? 'L' : 'M'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join('');
+  const fill = `${line}L${coords[coords.length-1].x.toFixed(1)},${H-pB}L${pL},${H-pB}Z`;
+
+  const maxIdx = as.pts.findIndex(p => p.ele === as.max);
+  const mxPt  = coords[maxIdx];
+
+  // Y gridlines at min, mid, max
+  const mid = (as.min + as.max) / 2;
+  const grid = [as.min, mid, as.max].map(a => {
+    const y = toY(a).toFixed(1);
+    return `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="#2a2d3a" stroke-width="1"/>
+            <text x="${pL-4}" y="${(parseFloat(y)+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#64748b">${Math.round(a)}</text>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+    <defs>
+      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4ade80" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#4ade80" stop-opacity=".02"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path d="${fill}" fill="url(#ag)"/>
+    <path d="${line}" stroke="#4ade80" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${coords[0].x.toFixed(1)}" cy="${coords[0].y.toFixed(1)}" r="4" fill="#4ade80"/>
+    <circle cx="${coords[coords.length-1].x.toFixed(1)}" cy="${coords[coords.length-1].y.toFixed(1)}" r="4" fill="#60a5fa"/>
+    ${maxIdx > 0 && maxIdx < as.pts.length-1 ? `<circle cx="${mxPt.x.toFixed(1)}" cy="${mxPt.y.toFixed(1)}" r="4" fill="#fbbf24"/>` : ''}
+    <text x="${pL}" y="${H-4}" text-anchor="start" font-size="9" fill="#64748b">0 km</text>
+    <text x="${W-pR}" y="${H-4}" text-anchor="end" font-size="9" fill="#64748b">${(totD/1000).toFixed(2)} km</text>
+    <text x="${pL-2}" y="${pT-2}" text-anchor="end" font-size="8" fill="#64748b">m slm</text>
+  </svg>`;
+}
+
+// ── Track detail panel ─────────────────────────────────────────────────────
+function showTrackDetail(idx) {
+  detailTrackIndex = idx;
+  const tracks = loadTracks();
+  const t = tracks[idx];
+  if (!t) return;
+
+  const as   = altStats(t.points);
+  const date = t.date ? new Date(t.date).toLocaleDateString('it-IT', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }) : '';
+  const pace = fmtPace(t.duration, t.dist);
+  const avgSpeed = t.dist > 0 ? ((t.dist / 1000) / (t.duration / 3600000)).toFixed(1) : '0.0';
+
+  document.getElementById('detail-track-title').textContent = t.title || 'Traccia';
+  document.getElementById('detail-track-meta').textContent  = [t.author, date].filter(Boolean).join(' · ');
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-stats">
+      <div class="detail-stat accent">
+        <div class="detail-stat-val">${(t.dist/1000).toFixed(2)} km</div>
+        <div class="detail-stat-lbl">Distanza totale</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-val">${fmtDuration(t.duration)}</div>
+        <div class="detail-stat-lbl">Durata</div>
+      </div>
+      <div class="detail-stat blue">
+        <div class="detail-stat-val">${pace} /km</div>
+        <div class="detail-stat-lbl">Passo medio</div>
+      </div>
+      <div class="detail-stat warn">
+        <div class="detail-stat-val">${avgSpeed} km/h</div>
+        <div class="detail-stat-lbl">Velocità media</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Altitudine</div>
+      <div class="alt-row">
+        <div class="alt-card start">
+          <div class="alt-card-val">${fmtAlt(as ? as.start : null)}</div>
+          <div class="alt-card-lbl">Partenza</div>
+        </div>
+        <div class="alt-card peak">
+          <div class="alt-card-val">${fmtAlt(as ? as.max : null)}</div>
+          <div class="alt-card-lbl">Massima</div>
+        </div>
+        <div class="alt-card end">
+          <div class="alt-card-val">${fmtAlt(as ? as.end : null)}</div>
+          <div class="alt-card-lbl">Arrivo</div>
+        </div>
+      </div>
+      <div class="chart-wrap">${buildAltitudeChart(t.points)}</div>
+    </div>
+
+    <div class="detail-actions">
+      <button class="btn-detail-map"   id="d-btn-map">🗺 Mappa</button>
+      <button class="btn-detail-share" id="d-btn-share">⬆ Condividi</button>
+      <button class="btn-detail-dl"    id="d-btn-dl">↓ GPX</button>
+      <button class="btn-detail-rm"    id="d-btn-rm">✕</button>
+    </div>`;
+
+  document.getElementById('d-btn-map').onclick = () => {
+    closeDetail();
+    showOnMap(t);
+  };
+  document.getElementById('d-btn-share').onclick = () => shareTrack(t);
+  document.getElementById('d-btn-dl').onclick    = () => downloadGpx(t.points, t.title || 'traccia', t.author);
+  document.getElementById('d-btn-rm').onclick    = () => {
+    if (!confirm(`Eliminare "${t.title || 'questa traccia'}"?`)) return;
+    const tracks = loadTracks();
+    tracks.splice(idx, 1);
+    saveTracks(tracks);
+    updateTracksCount();
+    closeDetail();
+    renderTracksList();
+    toast('Traccia eliminata');
+  };
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  detailTrackIndex = null;
+}
+
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+});
+
+function showOnMap(t) {
+  ghostPolylines.forEach(p => map.removeLayer(p));
+  ghostPolylines = [];
+  const lls = t.points.map(p => [p.lat, p.lon]);
+  const pl = L.polyline(lls, { color: '#60a5fa', weight: 3, opacity: .75, dashArray: '6 4' }).addTo(map);
+  ghostPolylines.push(pl);
+  map.fitBounds(pl.getBounds(), { padding: [30, 30] });
+  document.getElementById('overlay').classList.remove('open');
+  toast(t.title || 'Traccia');
 }
 
 // ── GPX builder ────────────────────────────────────────────────────────────
@@ -399,22 +539,15 @@ function buildGpx(pts, title, author) {
     (p.ele != null ? `        <ele>${p.ele.toFixed(1)}</ele>\n` : '') +
     `        <time>${new Date(p.time).toISOString()}</time>\n      </trkpt>`
   ).join('\n');
-  const authorBlock = author ? `    <author><name>${escXml(author)}</name></author>\n` : '';
-  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<gpx version="1.1" creator="GPS Tracker Web" xmlns="http://www.topografix.com/GPX/1/1"\n` +
-    `     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n` +
-    `     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n` +
-    `  <metadata>\n    <name>${escXml(title)}</name>\n` + authorBlock +
-    `    <time>${new Date().toISOString()}</time>\n  </metadata>\n` +
-    `  <trk>\n    <name>${escXml(title)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
+  const aBlock = author ? `    <author><name>${escXml(author)}</name></author>\n` : '';
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="GPS Tracker Web" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata>\n    <name>${escXml(title)}</name>\n${aBlock}    <time>${new Date().toISOString()}</time>\n  </metadata>\n  <trk>\n    <name>${escXml(title)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
 }
 
 function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function downloadGpx(pts, title, author) {
   const blob = new Blob([buildGpx(pts, title, author || '')], { type: 'application/gpx+xml' });
-  const fname = title.replace(/[/\\?%*:|"<>]/g, '-');
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${fname}.gpx` });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${title.replace(/[/\\?%*:|"<>]/g,'-')}.gpx` });
   a.click(); URL.revokeObjectURL(a.href);
 }
 
@@ -428,15 +561,14 @@ function toast(msg) {
 }
 
 function updateStats() {
-  document.getElementById('s-dist').textContent = (totalDist / 1000).toFixed(2);
+  document.getElementById('s-dist').textContent  = (totalDist/1000).toFixed(2);
   document.getElementById('s-speed').textContent = currentSpeed.toFixed(1);
-  document.getElementById('s-pts').textContent = points.length;
+  document.getElementById('s-pts').textContent   = points.length;
 }
 
 function updateTimer() {
   if (state !== STATE.RECORDING) return;
-  const elapsed = Date.now() - startTime - pausedMs;
-  document.getElementById('s-time').textContent = fmtDuration(elapsed);
+  document.getElementById('s-time').textContent = fmtDuration(Date.now() - startTime - pausedMs);
 }
 
 function show(id) { document.getElementById(id).style.display = 'block'; }
@@ -471,7 +603,7 @@ function updateTracksCount() {
 // ── Save dialog ────────────────────────────────────────────────────────────
 function showSaveDialog(track) {
   pendingTrack = track;
-  document.getElementById('inp-title').value = defaultTitle();
+  document.getElementById('inp-title').value  = defaultTitle();
   document.getElementById('inp-author').value = currentUser || '';
   document.getElementById('save-stats-hint').textContent =
     `· ${(track.dist/1000).toFixed(2)} km · ${fmtDuration(track.duration)}`;
@@ -488,9 +620,8 @@ function closeSaveDialog() {
 document.getElementById('btn-save-confirm').addEventListener('click', () => {
   if (!pendingTrack) return;
   const title  = document.getElementById('inp-title').value.trim() || defaultTitle();
-  const author = currentUser || '';
   const tracks = loadTracks();
-  tracks.unshift({ ...pendingTrack, title, author });
+  tracks.unshift({ ...pendingTrack, title, author: currentUser || '' });
   saveTracks(tracks);
   updateTracksCount();
   closeSaveDialog();
@@ -500,9 +631,7 @@ document.getElementById('btn-save-confirm').addEventListener('click', () => {
 });
 
 document.getElementById('btn-save-discard').addEventListener('click', () => {
-  closeSaveDialog();
-  setUIState(STATE.IDLE);
-  toast('Traccia scartata');
+  closeSaveDialog(); setUIState(STATE.IDLE); toast('Traccia scartata');
 });
 
 // ── Geolocation ────────────────────────────────────────────────────────────
@@ -526,19 +655,13 @@ function onPosition(pos) {
   if (speed != null) currentSpeed = speed * 3.6;
 
   const latlng = [lat, lon];
-  if (!posMarker) {
-    posMarker = L.marker(latlng, { icon: posIcon, zIndexOffset: 1000 }).addTo(map);
-  } else {
-    posMarker.setLatLng(latlng);
-  }
-  if (!accuracyCircle) {
-    accuracyCircle = L.circle(latlng, { radius: accuracy, color: '#4ade80', fillColor: '#4ade80', fillOpacity: .08, weight: 1 }).addTo(map);
-  } else {
-    accuracyCircle.setLatLng(latlng).setRadius(accuracy);
-  }
+  if (!posMarker) posMarker = L.marker(latlng, { icon: posIcon, zIndexOffset: 1000 }).addTo(map);
+  else posMarker.setLatLng(latlng);
+  if (!accuracyCircle) accuracyCircle = L.circle(latlng, { radius: accuracy, color: '#4ade80', fillColor: '#4ade80', fillOpacity: .08, weight: 1 }).addTo(map);
+  else accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+
   if (!centered) { map.setView(latlng, 16); centered = true; }
   document.getElementById('status-dot').classList.add('ready');
-
   if (state !== STATE.RECORDING) return;
 
   const pt = { lat, lon, ele, time };
@@ -546,19 +669,13 @@ function onPosition(pos) {
   if (lastPos) {
     const d = haversine(lastPos, pt);
     totalDist += d;
-    if (speed == null) {
-      const dt = (time - lastPos.time) / 1000;
-      if (dt > 0) currentSpeed = (d / dt) * 3.6;
-    }
+    if (speed == null) { const dt = (time - lastPos.time)/1000; if (dt > 0) currentSpeed = (d/dt)*3.6; }
   }
   lastPos = pt;
 
   const lls = points.map(p => [p.lat, p.lon]);
-  if (!trackPolyline) {
-    trackPolyline = L.polyline(lls, { color: '#4ade80', weight: 4, opacity: .85 }).addTo(map);
-  } else {
-    trackPolyline.setLatLngs(lls);
-  }
+  if (!trackPolyline) trackPolyline = L.polyline(lls, { color: '#4ade80', weight: 4, opacity: .85 }).addTo(map);
+  else trackPolyline.setLatLngs(lls);
   updateStats();
 }
 
@@ -567,7 +684,7 @@ function onGeoError(err) {
   toast(msgs[err.code] || 'Errore GPS');
 }
 
-// ── Recording controls ─────────────────────────────────────────────────────
+// ── Recording ──────────────────────────────────────────────────────────────
 function startRecording() {
   if (state === STATE.IDLE) {
     points = []; totalDist = 0; currentSpeed = 0; lastPos = null;
@@ -586,35 +703,24 @@ function startRecording() {
 
 function pauseRecording() {
   if (state !== STATE.RECORDING) return;
-  state = STATE.PAUSED;
-  pauseStart = Date.now();
-  clearInterval(timerInterval);
-  setUIState(STATE.PAUSED);
+  state = STATE.PAUSED; pauseStart = Date.now();
+  clearInterval(timerInterval); setUIState(STATE.PAUSED);
 }
 
 function stopRecording() {
   if (state === STATE.IDLE) return;
-  clearInterval(timerInterval);
-  state = STATE.IDLE;
-  stopWatch();
-  if (points.length < 2) {
-    toast('Traccia troppo corta, non salvata');
-    setUIState(STATE.IDLE);
-    return;
-  }
-  const elapsed = Date.now() - startTime - pausedMs;
-  showSaveDialog({ points, dist: totalDist, duration: elapsed, date: Date.now() });
+  clearInterval(timerInterval); state = STATE.IDLE; stopWatch();
+  if (points.length < 2) { toast('Traccia troppo corta, non salvata'); setUIState(STATE.IDLE); return; }
+  showSaveDialog({ points, dist: totalDist, duration: Date.now() - startTime - pausedMs, date: Date.now() });
 }
 
 // ── Export ─────────────────────────────────────────────────────────────────
 document.getElementById('btn-export').addEventListener('click', () => {
-  const tracks = loadTracks();
-  if (!tracks.length) return;
-  const t = tracks[0];
-  downloadGpx(t.points, t.title || 'traccia', t.author);
+  const tracks = loadTracks(); if (!tracks.length) return;
+  const t = tracks[0]; downloadGpx(t.points, t.title || 'traccia', t.author);
 });
 
-// ── Button wiring ──────────────────────────────────────────────────────────
+// ── Buttons ────────────────────────────────────────────────────────────────
 document.getElementById('btn-start').addEventListener('click', startRecording);
 document.getElementById('btn-pause').addEventListener('click', pauseRecording);
 document.getElementById('btn-stop').addEventListener('click', stopRecording);
@@ -623,7 +729,7 @@ document.getElementById('btn-center').addEventListener('click', () => {
   else toast('Posizione non ancora disponibile');
 });
 
-// ── Tracks panel ───────────────────────────────────────────────────────────
+// ── Tracks list ────────────────────────────────────────────────────────────
 function renderTracksList() {
   const list = document.getElementById('tracks-list');
   document.getElementById('panel-title').textContent = `Tracce di ${currentUser}`;
@@ -633,19 +739,21 @@ function renderTracksList() {
     return;
   }
   list.innerHTML = tracks.map((t, i) => {
-    const title = escXml(t.title || 'Traccia');
-    const date  = t.date ? new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) : '';
+    const pace = fmtPace(t.duration, t.dist);
+    const date = t.date ? new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) : '';
     return `
     <div class="track-item" data-i="${i}">
-      <div class="track-info">
-        <div class="track-title">${title}</div>
-        <div class="track-meta">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${t.points.length} pt${date ? ' · ' + date : ''}</div>
+      <div class="track-info" data-action="detail" data-i="${i}" style="flex:1;min-width:0">
+        <div class="track-title">${escXml(t.title || 'Traccia')}</div>
+        <div class="track-summary">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${pace} /km${date ? ' · ' + date : ''}</div>
       </div>
-      <div class="track-actions">
-        <button class="btn-show"  data-action="show"  data-i="${i}">🗺</button>
-        <button class="btn-share" data-action="share" data-i="${i}">⬆</button>
-        <button class="btn-dl"    data-action="dl"    data-i="${i}">↓</button>
-        <button class="btn-rm"    data-action="rm"    data-i="${i}">✕</button>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <div class="track-chevron">›</div>
+        <div class="track-actions">
+          <button class="btn-share" data-action="share" data-i="${i}">⬆</button>
+          <button class="btn-dl"    data-action="dl"    data-i="${i}">↓</button>
+          <button class="btn-rm"    data-action="rm"    data-i="${i}">✕</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -664,66 +772,46 @@ document.getElementById('overlay').addEventListener('click', e => {
 });
 
 document.getElementById('tracks-list').addEventListener('click', e => {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  const { action, i } = btn.dataset;
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const { action, i } = el.dataset;
+  const idx = parseInt(i);
   const tracks = loadTracks();
-  const t = tracks[parseInt(i)];
+  const t = tracks[idx];
 
-  if (action === 'share') {
+  if (action === 'detail') {
+    document.getElementById('overlay').classList.remove('open');
+    showTrackDetail(idx);
+  } else if (action === 'share') {
     shareTrack(t);
   } else if (action === 'dl') {
     downloadGpx(t.points, t.title || 'traccia', t.author);
   } else if (action === 'rm') {
     if (!confirm(`Eliminare "${t.title || 'questa traccia'}"?`)) return;
-    tracks.splice(parseInt(i), 1);
+    tracks.splice(idx, 1);
     saveTracks(tracks);
     updateTracksCount();
     renderTracksList();
     toast('Traccia eliminata');
-  } else if (action === 'show') {
-    ghostPolylines.forEach(p => map.removeLayer(p));
-    ghostPolylines = [];
-    const lls = t.points.map(p => [p.lat, p.lon]);
-    const pl = L.polyline(lls, { color: '#60a5fa', weight: 3, opacity: .7, dashArray: '6 4' }).addTo(map);
-    ghostPolylines.push(pl);
-    map.fitBounds(pl.getBounds(), { padding: [30, 30] });
-    document.getElementById('overlay').classList.remove('open');
-    toast(t.title || 'Traccia');
   }
 });
 
 // ── Share ──────────────────────────────────────────────────────────────────
 async function shareTrack(t) {
   const title = t.title || 'Traccia GPS';
-  const fname = title.replace(/[/\\?%*:|"<>]/g, '-') + '.gpx';
-  const gpxContent = buildGpx(t.points, title, t.author || '');
-  const file = new File([gpxContent], fname, { type: 'application/gpx+xml' });
-  const text = [
-    t.author ? `Di: ${t.author}` : '',
-    `${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)}`
-  ].filter(Boolean).join('\n');
+  const file  = new File([buildGpx(t.points, title, t.author || '')],
+    title.replace(/[/\\?%*:|"<>]/g,'-') + '.gpx', { type: 'application/gpx+xml' });
+  const text = [t.author ? `Di: ${t.author}` : '', `${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)}`].filter(Boolean).join('\n');
   try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ title, text, files: [file] });
-    } else if (navigator.share) {
-      await navigator.share({ title, text });
-      toast('File non condivisibile, usa ↓ per scaricarlo');
-    } else {
-      downloadGpx(t.points, title, t.author);
-      toast('Condivisione non supportata — file scaricato');
-    }
-  } catch (e) {
-    if (e.name !== 'AbortError') toast('Errore condivisione');
-  }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title, text, files: [file] });
+    else if (navigator.share) { await navigator.share({ title, text }); toast('File non condivisibile, usa ↓'); }
+    else { downloadGpx(t.points, title, t.author); toast('Condivisione non supportata — file scaricato'); }
+  } catch (e) { if (e.name !== 'AbortError') toast('Errore condivisione'); }
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-if (currentUser) {
-  login(currentUser);
-} else {
-  document.getElementById('login-screen').classList.remove('hidden');
-}
+if (currentUser) login(currentUser);
+else document.getElementById('login-screen').classList.remove('hidden');
 </script>
 </body>
 </html>
