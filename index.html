@@ -347,31 +347,27 @@ function updateTimer() {
   document.getElementById('s-time').textContent = fmtDuration(elapsed);
 }
 
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
 function setUIState(s) {
   const dot = document.getElementById('status-dot');
   dot.className = '';
-  document.getElementById('btn-start').style.display  = 'none';
-  document.getElementById('btn-pause').style.display  = 'none';
-  document.getElementById('btn-stop').style.display   = 'none';
-  document.getElementById('btn-export').style.display = '';
-  document.getElementById('tracks-btn').style.display = '';
+  hide('btn-start'); hide('btn-pause'); hide('btn-stop');
+  show('btn-export'); show('tracks-btn');
 
   if (s === STATE.IDLE) {
     document.getElementById('btn-start').textContent = '▶ Avvia';
-    document.getElementById('btn-start').style.display = '';
+    show('btn-start');
     document.getElementById('btn-export').disabled = loadTracks().length === 0;
   } else if (s === STATE.RECORDING) {
-    document.getElementById('btn-pause').style.display  = '';
-    document.getElementById('btn-stop').style.display   = '';
-    document.getElementById('btn-export').style.display = 'none';
-    document.getElementById('tracks-btn').style.display = 'none';
+    show('btn-pause'); show('btn-stop');
+    hide('btn-export'); hide('tracks-btn');
     dot.classList.add('recording');
   } else if (s === STATE.PAUSED) {
-    document.getElementById('btn-start').style.display = '';
-    document.getElementById('btn-start').textContent   = '▶ Riprendi';
-    document.getElementById('btn-stop').style.display  = '';
-    document.getElementById('btn-export').style.display = 'none';
-    document.getElementById('tracks-btn').style.display = 'none';
+    document.getElementById('btn-start').textContent = '▶ Riprendi';
+    show('btn-start'); show('btn-stop');
+    hide('btn-export'); hide('tracks-btn');
     dot.classList.add('paused');
   }
 }
