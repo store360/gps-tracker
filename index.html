@@ -82,14 +82,7 @@
     #btn-export { background: var(--border); color: var(--text); }
     #btn-center { background: var(--border); color: var(--text); flex: 0 0 48px; font-size: 1.1rem; padding: 14px 0; }
 
-    /* Tracks button */
-    #tracks-btn {
-      position: fixed; top: 56px; right: 12px; z-index: 800;
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); border-radius: var(--radius);
-      padding: 8px 12px; font-size: .75rem; font-weight: 600;
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-    }
+    #tracks-btn { background: var(--border); color: var(--text); }
     #tracks-btn .count {
       background: var(--accent); color: #052e16;
       border-radius: 99px; padding: 1px 6px; font-size: .65rem;
@@ -129,9 +122,10 @@
     .track-meta { font-size: .7rem; color: var(--muted); margin-top: 3px; }
     .track-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .track-actions button { flex: 0 0 auto; padding: 7px 10px; font-size: .7rem; }
-    .btn-dl   { background: var(--accent-dim); color: var(--accent); }
-    .btn-rm   { background: var(--danger-dim); color: var(--danger); }
-    .btn-show { background: var(--border); color: var(--text); }
+    .btn-dl    { background: var(--accent-dim); color: var(--accent); }
+    .btn-rm    { background: var(--danger-dim); color: var(--danger); }
+    .btn-show  { background: var(--border); color: var(--text); }
+    .btn-share { background: #1e3a5f; color: #60a5fa; }
     .empty-msg { color: var(--muted); font-size: .85rem; text-align: center; padding: 32px 16px; }
 
     /* Save dialog — centered card */
@@ -198,11 +192,10 @@
     <button id="btn-pause">⏸ Pausa</button>
     <button id="btn-stop">⏹ Stop</button>
     <button id="btn-export" disabled>↓ GPX</button>
+    <button id="tracks-btn">Tracce <span class="count" id="tracks-count">0</span></button>
     <button id="btn-center" title="Centra mappa">⊕</button>
   </div>
 </div>
-
-<button id="tracks-btn">Tracce <span class="count" id="tracks-count">0</span></button>
 
 <!-- Tracks list panel -->
 <div id="overlay" class="overlay">
@@ -357,24 +350,28 @@ function updateTimer() {
 function setUIState(s) {
   const dot = document.getElementById('status-dot');
   dot.className = '';
-  document.getElementById('btn-start').style.display = 'none';
-  document.getElementById('btn-pause').style.display = 'none';
-  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('btn-start').style.display  = 'none';
+  document.getElementById('btn-pause').style.display  = 'none';
+  document.getElementById('btn-stop').style.display   = 'none';
+  document.getElementById('btn-export').style.display = '';
+  document.getElementById('tracks-btn').style.display = '';
 
   if (s === STATE.IDLE) {
     document.getElementById('btn-start').textContent = '▶ Avvia';
     document.getElementById('btn-start').style.display = '';
     document.getElementById('btn-export').disabled = loadTracks().length === 0;
   } else if (s === STATE.RECORDING) {
-    document.getElementById('btn-pause').style.display = '';
-    document.getElementById('btn-stop').style.display = '';
-    document.getElementById('btn-export').disabled = true;
+    document.getElementById('btn-pause').style.display  = '';
+    document.getElementById('btn-stop').style.display   = '';
+    document.getElementById('btn-export').style.display = 'none';
+    document.getElementById('tracks-btn').style.display = 'none';
     dot.classList.add('recording');
   } else if (s === STATE.PAUSED) {
     document.getElementById('btn-start').style.display = '';
-    document.getElementById('btn-start').textContent = '▶ Riprendi';
-    document.getElementById('btn-stop').style.display = '';
-    document.getElementById('btn-export').disabled = true;
+    document.getElementById('btn-start').textContent   = '▶ Riprendi';
+    document.getElementById('btn-stop').style.display  = '';
+    document.getElementById('btn-export').style.display = 'none';
+    document.getElementById('tracks-btn').style.display = 'none';
     dot.classList.add('paused');
   }
 }
@@ -567,9 +564,10 @@ function renderTracksList() {
         <div class="track-meta">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${t.points.length} pt${date ? ' · ' + date : ''}</div>
       </div>
       <div class="track-actions">
-        <button class="btn-show" data-action="show" data-i="${i}">🗺</button>
-        <button class="btn-dl"   data-action="dl"   data-i="${i}">↓</button>
-        <button class="btn-rm"   data-action="rm"   data-i="${i}">✕</button>
+        <button class="btn-show"  data-action="show"  data-i="${i}">🗺</button>
+        <button class="btn-share" data-action="share" data-i="${i}">⬆</button>
+        <button class="btn-dl"    data-action="dl"    data-i="${i}">↓</button>
+        <button class="btn-rm"    data-action="rm"    data-i="${i}">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -594,7 +592,9 @@ document.getElementById('tracks-list').addEventListener('click', e => {
   const tracks = loadTracks();
   const t = tracks[parseInt(i)];
 
-  if (action === 'dl') {
+  if (action === 'share') {
+    shareTrack(t);
+  } else if (action === 'dl') {
     downloadGpx(t.points, t.title || t.name || 'traccia', t.author);
   } else if (action === 'rm') {
     const label = t.title || t.name || 'questa traccia';
@@ -615,6 +615,33 @@ document.getElementById('tracks-list').addEventListener('click', e => {
     toast(t.title || t.name || 'Traccia');
   }
 });
+
+// ── Share ──────────────────────────────────────────────────────────────────
+async function shareTrack(t) {
+  const title = t.title || t.name || 'Traccia GPS';
+  const fname = title.replace(/[/\\?%*:|"<>]/g, '-') + '.gpx';
+  const gpxContent = buildGpx(t.points, title, t.author || '');
+  const file = new File([gpxContent], fname, { type: 'application/gpx+xml' });
+  const text = [
+    t.author ? `Di: ${t.author}` : '',
+    `${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)}`
+  ].filter(Boolean).join('\n');
+
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ title, text, files: [file] });
+    } else if (navigator.share) {
+      // Fallback: condivide solo testo + contenuto GPX come testo
+      await navigator.share({ title, text });
+      toast('File non condivisibile, usa ↓ per scaricarlo');
+    } else {
+      downloadGpx(t.points, title, t.author);
+      toast('Condivisione non supportata — file scaricato');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('Errore condivisione');
+  }
+}
 
 // ── Init ───────────────────────────────────────────────────────────────────
 setUIState(STATE.IDLE);
