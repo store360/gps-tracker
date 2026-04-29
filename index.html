@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
   <title>GPS Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -77,8 +79,8 @@
     button:active { transform: scale(.97); }
     button:disabled { opacity: .35; cursor: not-allowed; }
     #btn-start  { background: var(--accent); color: #052e16; }
-    #btn-pause  { background: var(--warn); color: #451a03; display: none; }
-    #btn-stop   { background: var(--danger); color: #450a0a; display: none; }
+    #btn-pause  { background: var(--warn); color: #451a03; }
+    #btn-stop   { background: var(--danger); color: #450a0a; }
     #btn-export { background: var(--border); color: var(--text); }
     #btn-center { background: var(--border); color: var(--text); flex: 0 0 48px; font-size: 1.1rem; padding: 14px 0; }
 
@@ -189,8 +191,8 @@
 
   <div id="controls">
     <button id="btn-start">▶ Avvia</button>
-    <button id="btn-pause">⏸ Pausa</button>
-    <button id="btn-stop">⏹ Stop</button>
+    <button id="btn-pause" style="display:none">⏸ Pausa</button>
+    <button id="btn-stop"  style="display:none">⏹ Stop</button>
     <button id="btn-export" disabled>↓ GPX</button>
     <button id="tracks-btn">Tracce <span class="count" id="tracks-count">0</span></button>
     <button id="btn-center" title="Centra mappa">⊕</button>
