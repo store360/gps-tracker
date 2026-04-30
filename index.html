@@ -32,7 +32,7 @@
     .user-btn {
       background: var(--surface); border: 1px solid var(--border); color: var(--text);
       border-radius: var(--radius); padding: 20px 12px; font-size: 1rem; font-weight: 700;
-      cursor: pointer; flex: none; transition: background .15s, border-color .15s, transform .1s;
+      cursor: pointer; transition: background .15s, border-color .15s, transform .1s;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
     .user-btn:active { transform: scale(.96); }
@@ -55,7 +55,7 @@
     .header-right { display: flex; align-items: center; gap: 8px; }
     header h1 { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
     #user-badge { font-size: .75rem; font-weight: 600; background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; }
-    #btn-logout { font-size: .7rem; padding: 4px 10px; border-radius: 99px; background: var(--border); color: var(--muted); border: none; cursor: pointer; flex: 0 0 auto; }
+    #btn-logout { font-size: .7rem; padding: 4px 10px; border-radius: 99px; background: var(--border); color: var(--muted); border: none; cursor: pointer; }
     #status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background .3s; }
     #status-dot.recording { background: var(--danger); animation: pulse 1.2s infinite; }
     #status-dot.paused    { background: var(--warn); }
@@ -69,22 +69,53 @@
     #map { width: 100%; height: 100%; }
     .maplibregl-ctrl-bottom-left { bottom: 4px !important; }
 
-    /* 3D toggle button floating on map */
-    #btn-3d {
+    /* Map button group */
+    #map-btns {
       position: absolute; top: 10px; right: 10px; z-index: 10;
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); border-radius: 8px;
-      padding: 7px 12px; font-size: .75rem; font-weight: 700;
-      cursor: pointer; letter-spacing: .05em; box-shadow: 0 2px 8px rgba(0,0,0,.4);
-      transition: background .15s, border-color .15s;
+      display: flex; flex-direction: column; gap: 6px;
     }
-    #btn-3d.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+    .map-btn {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 7px 12px; font-size: .75rem; font-weight: 700;
+      cursor: pointer; letter-spacing: .04em; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      transition: background .15s, border-color .15s; white-space: nowrap;
+    }
+    .map-btn.active        { background: var(--blue-dim);   border-color: var(--blue);   color: var(--blue); }
+    .map-btn.active-accent { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-    /* Position dot marker */
+    /* Search panel */
+    #search-panel {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 12px; display: none; flex-direction: column;
+    }
+    #search-panel.open { display: flex; }
+    #search-input-row { display: flex; gap: 8px; }
+    #search-input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: .9rem;
+      padding: 9px 12px; outline: none; font-family: inherit;
+    }
+    #search-input:focus { border-color: var(--accent); }
+    #search-close {
+      background: var(--border); color: var(--muted); border: none;
+      border-radius: 8px; padding: 9px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+    }
+    #search-results { display: none; flex-direction: column; margin-top: 8px; gap: 2px; max-height: 180px; overflow-y: auto; }
+    #search-results.show { display: flex; }
+    .search-result { padding: 9px 12px; border-radius: 6px; cursor: pointer; font-size: .82rem; color: var(--text); transition: background .15s; }
+    .search-result:active { background: var(--bg); }
+    .sr-name { font-weight: 700; }
+    .sr-sub  { color: var(--muted); font-size: .72rem; margin-top: 1px; }
+
+    /* Markers */
     .pos-dot {
       width: 18px; height: 18px; border-radius: 50%;
-      background: #4ade80; border: 3px solid #fff;
-      box-shadow: 0 0 6px rgba(0,0,0,.5);
+      background: #4ade80; border: 3px solid #fff; box-shadow: 0 0 6px rgba(0,0,0,.5);
+    }
+    .search-pin {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #f87171; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,.5);
     }
 
     /* ── Stats ── */
@@ -95,7 +126,7 @@
     .stat-lbl { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
 
     /* ── Controls ── */
-    #controls { display: flex; gap: 10px; padding: 12px 16px; background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0; }
+    #controls { display: flex; gap: 8px; padding: 12px 16px; background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0; }
     button { flex: 1; border: none; border-radius: var(--radius); padding: 14px 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; letter-spacing: .03em; }
     button:active { transform: scale(.97); }
     button:disabled { opacity: .35; cursor: not-allowed; }
@@ -103,6 +134,7 @@
     #btn-pause  { background: var(--warn); color: #451a03; }
     #btn-stop   { background: var(--danger); color: #450a0a; }
     #btn-export { background: var(--border); color: var(--text); }
+    #btn-import { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 14px 12px; font-size: 1rem; }
     #btn-center { background: var(--border); color: var(--text); flex: 0 0 48px; font-size: 1.1rem; padding: 14px 0; }
     #tracks-btn { background: var(--border); color: var(--text); }
     #tracks-btn .count { background: var(--accent); color: #052e16; border-radius: 99px; padding: 1px 6px; font-size: .65rem; }
@@ -112,10 +144,20 @@
     .overlay.open { display: flex; }
 
     /* ── Tracks list ── */
-    #panel { width: 100%; max-height: 75dvh; background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; }
-    #panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); }
+    #panel { width: 100%; max-height: 80dvh; background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; }
+    #panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     #panel-header h2 { font-size: .95rem; }
-    #panel-close { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 6px 14px; font-size: .8rem; }
+    #panel-header-btns { display: flex; gap: 8px; align-items: center; }
+    #panel-map-btn { background: var(--blue-dim); color: var(--blue); flex: 0 0 auto; padding: 6px 10px; font-size: .72rem; border-radius: 8px; }
+    #panel-map-btn.active { background: var(--accent-dim); color: var(--accent); }
+    #panel-close  { background: var(--border); color: var(--text); flex: 0 0 auto; padding: 6px 14px; font-size: .8rem; }
+
+    /* Aggregate stats */
+    #panel-agg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .agg-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+    .agg-val { font-size: 1rem; font-weight: 700; }
+    .agg-lbl { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
     #tracks-list { overflow-y: auto; padding: 8px; flex: 1; }
     .track-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 6px; background: var(--bg); cursor: pointer; transition: border-color .15s; }
     .track-item:active { border-color: var(--accent); }
@@ -147,6 +189,7 @@
     .detail-stat.accent .detail-stat-val { color: var(--accent); }
     .detail-stat.blue   .detail-stat-val { color: var(--blue); }
     .detail-stat.warn   .detail-stat-val { color: var(--warn); }
+    .detail-stat.danger .detail-stat-val { color: var(--danger); }
     .section-title { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
     .alt-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
     .alt-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
@@ -211,7 +254,20 @@
 
   <div id="map-wrap">
     <div id="map"></div>
-    <button id="btn-3d">3D</button>
+
+    <div id="map-btns">
+      <button class="map-btn" id="btn-search">🔍 Cerca</button>
+      <button class="map-btn" id="btn-trails">Sentieri</button>
+      <button class="map-btn" id="btn-3d">3D</button>
+    </div>
+
+    <div id="search-panel">
+      <div id="search-input-row">
+        <input id="search-input" type="search" placeholder="Cerca luoghi, sentieri, vette…" autocomplete="off" autocorrect="off" />
+        <button id="search-close">✕</button>
+      </div>
+      <div id="search-results"></div>
+    </div>
   </div>
 
   <div id="stats">
@@ -226,8 +282,10 @@
     <button id="btn-pause" style="display:none">⏸ Pausa</button>
     <button id="btn-stop"  style="display:none">⏹ Stop</button>
     <button id="btn-export" disabled>↓ GPX</button>
+    <button id="btn-import" title="Importa GPX">📂</button>
     <button id="tracks-btn">Tracce <span class="count" id="tracks-count">0</span></button>
     <button id="btn-center" title="Centra mappa">⊕</button>
+    <input id="gpx-file-input" type="file" accept=".gpx,application/gpx+xml" style="display:none" />
   </div>
 </div>
 
@@ -236,8 +294,12 @@
   <div id="panel">
     <div id="panel-header">
       <h2 id="panel-title">Le mie tracce</h2>
-      <button id="panel-close">Chiudi</button>
+      <div id="panel-header-btns">
+        <button id="panel-map-btn">🗺 Mappa</button>
+        <button id="panel-close">Chiudi</button>
+      </div>
     </div>
+    <div id="panel-agg"></div>
     <div id="tracks-list"></div>
   </div>
 </div>
@@ -279,19 +341,10 @@
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-// ╔══════════════════════════════════════════════════════════╗
-// ║  CONFIGURA QUI LA LISTA DEGLI UTENTI AUTORIZZATI        ║
-// ╚══════════════════════════════════════════════════════════╝
-const USERS = [
-  'Marco',
-  'Stefano',
-  'Davide',
-  'Alessandra',
-];
+// ── Users ──────────────────────────────────────────────────────────────────
+const USERS = ['Marco', 'Stefano', 'Davide', 'Alessandra'];
 
-// ── Map (MapLibre GL) ──────────────────────────────────────────────────────
-// Nota: MapLibre usa [longitudine, latitudine] — invertito rispetto a Leaflet!
-
+// ── Map setup ──────────────────────────────────────────────────────────────
 const mapStyle = {
   version: 8,
   sources: {
@@ -307,76 +360,172 @@ const mapStyle = {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>'
     }
   },
-  layers: [
-    { id: 'carto-raster', type: 'raster', source: 'carto' }
-  ]
+  layers: [{ id: 'carto-raster', type: 'raster', source: 'carto' }]
 };
 
 const map = new maplibregl.Map({
-  container: 'map',
-  style: mapStyle,
-  center: [12.4964, 41.9028], // Roma come default
-  zoom: 5,
-  pitchWithRotate: true,
-  touchPitch: true
+  container: 'map', style: mapStyle,
+  center: [8.9, 44.4], // Genova / Liguria
+  zoom: 9,
+  pitchWithRotate: true, touchPitch: true
 });
 
 map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
 map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
-let mapLoaded = false;
-let posMarker  = null;
-let ghostCount = 0;
-let ghostIds   = [];
-let is3D       = false;
+let mapLoaded = false, posMarker = null, searchMarker = null;
+let ghostCount = 0, ghostIds = [];
+let autoGhostCounter = 0, autoGhostIds = [];
+let is3D = false, isTrails = false, showingAllTracks = false;
 
 map.on('load', () => {
   mapLoaded = true;
 
-  // Sky atmosphere per la vista 3D
+  map.addLayer({ id: 'sky', type: 'sky', paint: {
+    'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0, 60], 'sky-atmosphere-sun-intensity': 10
+  }});
+
+  // Waymarked Trails – sentieri CAI e hiking da OpenStreetMap
+  map.addSource('trails-src', {
+    type: 'raster',
+    tiles: ['https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png'],
+    tileSize: 256, maxzoom: 17,
+    attribution: '© <a href="https://hiking.waymarkedtrails.org">Waymarked Trails</a>'
+  });
   map.addLayer({
-    id: 'sky',
-    type: 'sky',
-    paint: {
-      'sky-type': 'atmosphere',
-      'sky-atmosphere-sun': [0, 60],
-      'sky-atmosphere-sun-intensity': 10
-    }
+    id: 'trails-layer', type: 'raster', source: 'trails-src',
+    layout: { visibility: 'none' },
+    paint: { 'raster-opacity': 0.85 }
   });
 
-  // Sorgente e layer per la traccia corrente
+  // Traccia corrente
   map.addSource('track', {
     type: 'geojson',
     data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
   });
   map.addLayer({
-    id: 'track-layer',
-    type: 'line',
-    source: 'track',
+    id: 'track-layer', type: 'line', source: 'track',
     layout: { 'line-join': 'round', 'line-cap': 'round' },
     paint: { 'line-color': '#4ade80', 'line-width': 4, 'line-opacity': 0.9 }
   });
 });
 
+// ── Sentieri toggle ────────────────────────────────────────────────────────
+const btnTrails = document.getElementById('btn-trails');
+btnTrails.addEventListener('click', () => {
+  isTrails = !isTrails;
+  if (mapLoaded) map.setLayoutProperty('trails-layer', 'visibility', isTrails ? 'visible' : 'none');
+  btnTrails.classList.toggle('active-accent', isTrails);
+  btnTrails.textContent = isTrails ? 'Sentieri ✓' : 'Sentieri';
+});
+
+// ── 3D toggle ──────────────────────────────────────────────────────────────
+const btn3d = document.getElementById('btn-3d');
+btn3d.addEventListener('click', () => {
+  is3D = !is3D;
+  if (is3D) {
+    if (!map.getSource('terrain')) {
+      map.addSource('terrain', {
+        type: 'raster-dem',
+        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        encoding: 'terrarium', tileSize: 256, maxzoom: 14
+      });
+    }
+    map.setTerrain({ source: 'terrain', exaggeration: 1.8 });
+    map.easeTo({ pitch: 55, duration: 700 });
+    btn3d.textContent = '2D'; btn3d.classList.add('active');
+  } else {
+    map.setTerrain(null);
+    map.easeTo({ pitch: 0, bearing: 0, duration: 700 });
+    btn3d.textContent = '3D'; btn3d.classList.remove('active');
+  }
+});
+
+// ── Search ─────────────────────────────────────────────────────────────────
+const btnSearch     = document.getElementById('btn-search');
+const searchPanel   = document.getElementById('search-panel');
+const searchInput   = document.getElementById('search-input');
+const searchClose   = document.getElementById('search-close');
+const searchResults = document.getElementById('search-results');
+let searchTimer;
+
+btnSearch.addEventListener('click', () => {
+  searchPanel.classList.add('open');
+  searchInput.focus();
+});
+
+searchClose.addEventListener('click', closeSearch);
+function closeSearch() {
+  searchPanel.classList.remove('open');
+  searchInput.value = '';
+  searchResults.innerHTML = '';
+  searchResults.classList.remove('show');
+  if (searchMarker) { searchMarker.remove(); searchMarker = null; }
+}
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const q = searchInput.value.trim();
+  if (q.length < 2) { searchResults.innerHTML = ''; searchResults.classList.remove('show'); return; }
+  searchTimer = setTimeout(() => doSearch(q), 350);
+});
+
+searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+
+async function doSearch(q) {
+  try {
+    // Bias verso Liguria ma non limitato geograficamente
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=it&lat=44.4&lon=8.9`;
+    const r = await fetch(url);
+    const data = await r.json();
+    renderSearchResults(data.features || []);
+  } catch { toast('Errore ricerca'); }
+}
+
+function renderSearchResults(features) {
+  if (!features.length) {
+    searchResults.innerHTML = '<div class="search-result"><span class="sr-name" style="color:var(--muted)">Nessun risultato</span></div>';
+    searchResults.classList.add('show');
+    return;
+  }
+  searchResults.innerHTML = features.map((f, i) => {
+    const p    = f.properties;
+    const name = p.name || p.street || 'Luogo';
+    const sub  = [p.locality || p.city, p.county, p.country].filter(Boolean).join(', ');
+    return `<div class="search-result" data-i="${i}">
+      <div class="sr-name">${escXml(name)}</div>
+      ${sub ? `<div class="sr-sub">${escXml(sub)}</div>` : ''}
+    </div>`;
+  }).join('');
+  searchResults.classList.add('show');
+
+  searchResults.querySelectorAll('.search-result').forEach((el, i) => {
+    el.addEventListener('click', () => {
+      const f = features[i];
+      const [lon, lat] = f.geometry.coordinates;
+      map.flyTo({ center: [lon, lat], zoom: 14, duration: 900 });
+      if (searchMarker) searchMarker.remove();
+      const dot = document.createElement('div'); dot.className = 'search-pin';
+      searchMarker = new maplibregl.Marker({ element: dot }).setLngLat([lon, lat]).addTo(map);
+      searchResults.innerHTML = ''; searchResults.classList.remove('show');
+      searchInput.value = f.properties.name || '';
+    });
+  });
+}
+
+// ── Track map helpers ──────────────────────────────────────────────────────
 function updateTrackOnMap() {
   if (!mapLoaded) return;
   map.getSource('track').setData({
     type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates: points.map(p => [p.lon, p.lat, p.ele || 0])
-    }
+    geometry: { type: 'LineString', coordinates: points.map(p => [p.lon, p.lat, p.ele || 0]) }
   });
 }
-
 function clearTrackOnMap() {
   if (!mapLoaded) return;
-  map.getSource('track').setData({
-    type: 'Feature', geometry: { type: 'LineString', coordinates: [] }
-  });
+  map.getSource('track').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
 }
 
-// Ghost track (tracce salvate mostrate sulla mappa)
 function clearGhosts() {
   ghostIds.forEach(id => {
     if (map.getLayer(id + '-l')) map.removeLayer(id + '-l');
@@ -388,53 +537,55 @@ function clearGhosts() {
 function showOnMap(t) {
   if (!mapLoaded) return;
   clearGhosts();
-  const id   = 'ghost-' + ghostCount++;
+  const id     = 'ghost-' + ghostCount++;
   const coords = t.points.map(p => [p.lon, p.lat, p.ele || 0]);
-  map.addSource(id, {
-    type: 'geojson',
-    data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } }
-  });
-  map.addLayer({
-    id: id + '-l', type: 'line', source: id,
+  map.addSource(id, { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } } });
+  map.addLayer({ id: id + '-l', type: 'line', source: id,
     layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: { 'line-color': '#60a5fa', 'line-width': 3, 'line-opacity': 0.8,
-             'line-dasharray': [2, 2] }
+    paint: { 'line-color': '#60a5fa', 'line-width': 3, 'line-opacity': 0.85, 'line-dasharray': [2, 2] }
   });
   ghostIds.push(id);
-
-  const bounds = coords.reduce(
-    (b, c) => b.extend(c),
-    new maplibregl.LngLatBounds(coords[0], coords[0])
-  );
+  const bounds = coords.reduce((b, c) => b.extend(c), new maplibregl.LngLatBounds(coords[0], coords[0]));
   map.fitBounds(bounds, { padding: 50, duration: 600 });
   document.getElementById('overlay').classList.remove('open');
   toast(t.title || 'Traccia');
 }
 
-// ── 3D terrain toggle ──────────────────────────────────────────────────────
-const btn3d = document.getElementById('btn-3d');
+// Auto-ghost: tutte le tracce salvate come linee sottili di sfondo
+function clearAutoGhosts() {
+  autoGhostIds.forEach(id => {
+    if (map.getLayer(id + '-l')) map.removeLayer(id + '-l');
+    if (map.getSource(id))       map.removeSource(id);
+  });
+  autoGhostIds = [];
+}
 
-btn3d.addEventListener('click', () => {
-  is3D = !is3D;
-  if (is3D) {
-    if (!map.getSource('terrain')) {
-      map.addSource('terrain', {
-        type: 'raster-dem',
-        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-        encoding: 'terrarium',
-        tileSize: 256,
-        maxzoom: 14
-      });
-    }
-    map.setTerrain({ source: 'terrain', exaggeration: 1.8 });
-    map.easeTo({ pitch: 55, duration: 700 });
-    btn3d.textContent = '2D';
-    btn3d.classList.add('active');
+function drawAutoGhosts() {
+  if (!mapLoaded) return;
+  clearAutoGhosts();
+  loadTracks().forEach((t, i) => {
+    if (!t.points?.length) return;
+    const id     = 'ag-' + (autoGhostCounter++) + '-' + i;
+    const coords = t.points.map(p => [p.lon, p.lat]);
+    map.addSource(id, { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } } });
+    map.addLayer({ id: id + '-l', type: 'line', source: id,
+      layout: { 'line-join': 'round', 'line-cap': 'round' },
+      paint: { 'line-color': '#60a5fa', 'line-width': 1.5, 'line-opacity': 0.25 }
+    });
+    autoGhostIds.push(id);
+  });
+}
+
+// Toggle "mostra tutte le tracce sulla mappa"
+document.getElementById('panel-map-btn').addEventListener('click', () => {
+  showingAllTracks = !showingAllTracks;
+  const btn = document.getElementById('panel-map-btn');
+  if (showingAllTracks) {
+    drawAutoGhosts();
+    btn.textContent = '🗺 Nascondi'; btn.classList.add('active');
   } else {
-    map.setTerrain(null);
-    map.easeTo({ pitch: 0, bearing: 0, duration: 700 });
-    btn3d.textContent = '3D';
-    btn3d.classList.remove('active');
+    clearAutoGhosts();
+    btn.textContent = '🗺 Mappa'; btn.classList.remove('active');
   }
 });
 
@@ -458,6 +609,8 @@ function login(name) {
   setUIState(STATE.IDLE);
   if ('geolocation' in navigator) startWatch();
   else toast('Geolocation non supportata');
+  if (mapLoaded) drawAutoGhosts();
+  else map.once('load', drawAutoGhosts);
 }
 
 function logout() {
@@ -466,7 +619,7 @@ function logout() {
   localStorage.removeItem('gpx_current_user');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('user-badge').textContent = '';
-  stopWatch();
+  stopWatch(); clearAutoGhosts();
 }
 
 document.getElementById('btn-logout').addEventListener('click', logout);
@@ -494,27 +647,23 @@ function haversine(a, b) {
   const s = Math.sin(dLat/2)**2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLon/2)**2;
   return R * 2 * Math.asin(Math.sqrt(s));
 }
-
 function fmtDuration(ms) {
   const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60);
   return h > 0
     ? `${h}:${String(m%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`
     : `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
-
 function fmtPace(ms, distM) {
   if (!distM) return '—';
   const msPerKm = ms / (distM / 1000);
   return `${Math.floor(msPerKm/60000)}:${String(Math.floor((msPerKm%60000)/1000)).padStart(2,'0')}`;
 }
-
 function fmtAlt(v) { return v != null ? Math.round(v) + ' m' : '—'; }
-
 function defaultTitle() {
   return `Traccia ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })}`;
 }
 
-// ── Altitude stats ─────────────────────────────────────────────────────────
+// ── Elevation stats ────────────────────────────────────────────────────────
 function altStats(pts) {
   const p = pts.filter(p => p.ele != null && !isNaN(p.ele));
   if (!p.length) return null;
@@ -522,9 +671,20 @@ function altStats(pts) {
   return { start: p[0].ele, end: p[p.length-1].ele, max: Math.max(...alts), min: Math.min(...alts), pts: p };
 }
 
+function elevGain(pts) {
+  const p = (pts || []).filter(p => p.ele != null && !isNaN(p.ele));
+  let gain = 0, loss = 0;
+  for (let i = 1; i < p.length; i++) {
+    const d = p[i].ele - p[i-1].ele;
+    if (d > 0.5)  gain += d;
+    else if (d < -0.5) loss -= d;
+  }
+  return { gain: Math.round(gain), loss: Math.round(loss) };
+}
+
 // ── Altitude chart SVG ─────────────────────────────────────────────────────
-function buildAltitudeChart(points) {
-  const as = altStats(points);
+function buildAltitudeChart(pts) {
+  const as = altStats(pts);
   if (!as || as.pts.length < 2)
     return '<p style="color:var(--muted);font-size:.78rem;text-align:center;padding:18px 0">Dati altitudine non disponibili</p>';
 
@@ -543,8 +703,8 @@ function buildAltitudeChart(points) {
   const fill = `${line}L${coords[coords.length-1].x.toFixed(1)},${H-pB}L${pL},${H-pB}Z`;
   const maxIdx = as.pts.findIndex(p => p.ele === as.max);
   const mxPt  = coords[maxIdx];
+  const mid   = (as.min + as.max) / 2;
 
-  const mid = (as.min + as.max) / 2;
   const grid = [as.min, mid, as.max].map(a => {
     const y = toY(a).toFixed(1);
     return `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="#2a2d3a" stroke-width="1"/>
@@ -575,12 +735,25 @@ function showTrackDetail(idx) {
   detailTrackIndex = idx;
   const tracks = loadTracks();
   const t = tracks[idx]; if (!t) return;
-  const as  = altStats(t.points);
-  const date = t.date ? new Date(t.date).toLocaleDateString('it-IT', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }) : '';
+  const as = altStats(t.points);
+  const eg = elevGain(t.points);
+  const date = t.date
+    ? new Date(t.date).toLocaleDateString('it-IT', { weekday:'long', day:'2-digit', month:'long', year:'numeric' })
+    : '';
   const avgSpeed = t.dist > 0 ? ((t.dist/1000) / (t.duration/3600000)).toFixed(1) : '0.0';
 
   document.getElementById('detail-track-title').textContent = t.title || 'Traccia';
   document.getElementById('detail-track-meta').textContent  = [t.author, date].filter(Boolean).join(' · ');
+
+  const elevRows = (eg.gain || eg.loss) ? `
+    ${eg.gain ? `<div class="detail-stat accent">
+      <div class="detail-stat-val">+${eg.gain} m</div>
+      <div class="detail-stat-lbl">Dislivello +</div>
+    </div>` : ''}
+    ${eg.loss ? `<div class="detail-stat danger">
+      <div class="detail-stat-val">-${eg.loss} m</div>
+      <div class="detail-stat-lbl">Dislivello -</div>
+    </div>` : ''}` : '';
 
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-stats">
@@ -600,6 +773,7 @@ function showTrackDetail(idx) {
         <div class="detail-stat-val">${avgSpeed} km/h</div>
         <div class="detail-stat-lbl">Velocità media</div>
       </div>
+      ${elevRows}
     </div>
     <div>
       <div class="section-title">Altitudine</div>
@@ -622,8 +796,10 @@ function showTrackDetail(idx) {
   document.getElementById('d-btn-dl').onclick    = () => downloadGpx(t.points, t.title || 'traccia', t.author);
   document.getElementById('d-btn-rm').onclick    = () => {
     if (!confirm(`Eliminare "${t.title || 'questa traccia'}"?`)) return;
-    const tracks = loadTracks(); tracks.splice(idx, 1); saveTracks(tracks);
-    updateTracksCount(); closeDetail(); renderTracksList(); toast('Traccia eliminata');
+    const tr = loadTracks(); tr.splice(idx, 1); saveTracks(tr);
+    updateTracksCount(); closeDetail(); renderTracksList();
+    if (showingAllTracks) drawAutoGhosts();
+    toast('Traccia eliminata');
   };
   document.getElementById('detail-overlay').classList.add('open');
 }
@@ -632,13 +808,12 @@ function closeDetail() {
   document.getElementById('detail-overlay').classList.remove('open');
   detailTrackIndex = null;
 }
-
 document.getElementById('detail-close').addEventListener('click', closeDetail);
 document.getElementById('detail-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('detail-overlay')) closeDetail();
 });
 
-// ── GPX builder ────────────────────────────────────────────────────────────
+// ── GPX export ─────────────────────────────────────────────────────────────
 function buildGpx(pts, title, author) {
   const trkpts = pts.map(p =>
     `      <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lon.toFixed(7)}">\n` +
@@ -649,13 +824,55 @@ function buildGpx(pts, title, author) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="GPS Tracker Web" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata>\n    <name>${escXml(title)}</name>\n${aBlock}    <time>${new Date().toISOString()}</time>\n  </metadata>\n  <trk>\n    <name>${escXml(title)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
 }
 
-function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function downloadGpx(pts, title, author) {
   const blob = new Blob([buildGpx(pts, title, author||'')], { type:'application/gpx+xml' });
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${title.replace(/[/\\?%*:|"<>]/g,'-')}.gpx` });
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: `${title.replace(/[/\\?%*:|"<>]/g,'-')}.gpx`
+  });
   a.click(); URL.revokeObjectURL(a.href);
 }
+
+// ── GPX import ─────────────────────────────────────────────────────────────
+function importGpx(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const doc = new DOMParser().parseFromString(e.target.result, 'text/xml');
+      if (doc.querySelector('parsererror')) throw new Error('XML non valido');
+      const nameEl = doc.querySelector('trk > name') || doc.querySelector('metadata > name');
+      const title  = nameEl?.textContent?.trim() || file.name.replace(/\.gpx$/i, '');
+      const trkpts = Array.from(doc.querySelectorAll('trkpt'));
+      if (!trkpts.length) throw new Error('Nessun punto trovato');
+      const pts = trkpts.map(pt => ({
+        lat:  parseFloat(pt.getAttribute('lat')),
+        lon:  parseFloat(pt.getAttribute('lon')),
+        ele:  pt.querySelector('ele')  ? parseFloat(pt.querySelector('ele').textContent)  : null,
+        time: pt.querySelector('time') ? new Date(pt.querySelector('time').textContent).getTime() : Date.now()
+      })).filter(p => !isNaN(p.lat) && !isNaN(p.lon));
+      if (pts.length < 2) throw new Error('Traccia troppo corta');
+      let dist = 0;
+      for (let i = 1; i < pts.length; i++) dist += haversine(pts[i-1], pts[i]);
+      const duration = Math.max(pts[pts.length-1].time - pts[0].time, 1000);
+      const tracks = loadTracks();
+      tracks.unshift({ points: pts, title, author: currentUser || '', dist, duration, date: pts[0].time });
+      saveTracks(tracks);
+      updateTracksCount();
+      if (showingAllTracks) drawAutoGhosts();
+      toast(`"${title}" importata — ${(dist/1000).toFixed(2)} km`);
+    } catch(err) { toast('Errore: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+const gpxFileInput = document.getElementById('gpx-file-input');
+document.getElementById('btn-import').addEventListener('click', () => gpxFileInput.click());
+gpxFileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) { importGpx(file); gpxFileInput.value = ''; }
+});
 
 // ── UI helpers ─────────────────────────────────────────────────────────────
 let toastTimer;
@@ -665,18 +882,15 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
-
 function updateStats() {
   document.getElementById('s-dist').textContent  = (totalDist/1000).toFixed(2);
   document.getElementById('s-speed').textContent = currentSpeed.toFixed(1);
   document.getElementById('s-pts').textContent   = points.length;
 }
-
 function updateTimer() {
   if (state !== STATE.RECORDING) return;
   document.getElementById('s-time').textContent = fmtDuration(Date.now() - startTime - pausedMs);
 }
-
 function show(id) { document.getElementById(id).style.display = 'block'; }
 function hide(id) { document.getElementById(id).style.display = 'none'; }
 
@@ -685,7 +899,6 @@ function setUIState(s) {
   dot.className = '';
   hide('btn-start'); hide('btn-pause'); hide('btn-stop');
   show('btn-export'); show('tracks-btn');
-
   if (s === STATE.IDLE) {
     document.getElementById('btn-start').textContent = '▶ Avvia';
     show('btn-start');
@@ -701,9 +914,28 @@ function setUIState(s) {
     dot.classList.add('paused');
   }
 }
-
 function updateTracksCount() {
   document.getElementById('tracks-count').textContent = loadTracks().length;
+}
+
+// ── Aggregate stats ────────────────────────────────────────────────────────
+function renderAggStats() {
+  const tracks   = loadTracks();
+  const totalKm  = tracks.reduce((s, t) => s + (t.dist || 0), 0) / 1000;
+  const totalGain = tracks.reduce((s, t) => s + elevGain(t.points || []).gain, 0);
+  document.getElementById('panel-agg').innerHTML = `
+    <div class="agg-stat">
+      <div class="agg-val">${tracks.length}</div>
+      <div class="agg-lbl">Tracce</div>
+    </div>
+    <div class="agg-stat">
+      <div class="agg-val" style="color:var(--accent)">${totalKm.toFixed(1)} km</div>
+      <div class="agg-lbl">Totale km</div>
+    </div>
+    <div class="agg-stat">
+      <div class="agg-val" style="color:var(--warn)">${totalGain > 0 ? '+' + totalGain + ' m' : '—'}</div>
+      <div class="agg-lbl">D+ totale</div>
+    </div>`;
 }
 
 // ── Save dialog ────────────────────────────────────────────────────────────
@@ -717,7 +949,6 @@ function showSaveDialog(track) {
   document.getElementById('inp-title').focus();
   document.getElementById('inp-title').select();
 }
-
 function closeSaveDialog() {
   document.getElementById('save-overlay').classList.remove('open');
   pendingTrack = null;
@@ -725,11 +956,12 @@ function closeSaveDialog() {
 
 document.getElementById('btn-save-confirm').addEventListener('click', () => {
   if (!pendingTrack) return;
-  const title = document.getElementById('inp-title').value.trim() || defaultTitle();
+  const title  = document.getElementById('inp-title').value.trim() || defaultTitle();
   const tracks = loadTracks();
   tracks.unshift({ ...pendingTrack, title, author: currentUser || '' });
   saveTracks(tracks);
   updateTracksCount();
+  if (showingAllTracks) drawAutoGhosts();
   closeSaveDialog();
   document.getElementById('btn-export').disabled = false;
   setUIState(STATE.IDLE);
@@ -747,7 +979,6 @@ function startWatch() {
     enableHighAccuracy: true, maximumAge: 2000, timeout: 10000
   });
 }
-
 function stopWatch() {
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
 }
@@ -755,44 +986,26 @@ function stopWatch() {
 function onPosition(pos) {
   const { latitude: lat, longitude: lon, altitude: ele, accuracy, speed } = pos.coords;
   const time = pos.timestamp;
-
   const badge = document.getElementById('gps-badge');
   badge.textContent = `±${Math.round(accuracy)}m`;
   badge.className   = accuracy < 20 ? 'good' : '';
   if (speed != null) currentSpeed = speed * 3.6;
-
-  // Aggiorna/crea il marker di posizione
   if (!posMarker) {
-    const el = document.createElement('div');
-    el.className = 'pos-dot';
+    const el = document.createElement('div'); el.className = 'pos-dot';
     posMarker = new maplibregl.Marker({ element: el }).setLngLat([lon, lat]).addTo(map);
-  } else {
-    posMarker.setLngLat([lon, lat]);
-  }
-
-  // Centra la mappa al primo fix GPS
-  if (!centered) {
-    map.jumpTo({ center: [lon, lat], zoom: 16 });
-    centered = true;
-  }
+  } else { posMarker.setLngLat([lon, lat]); }
+  if (!centered) { map.jumpTo({ center: [lon, lat], zoom: 16 }); centered = true; }
   document.getElementById('status-dot').classList.add('ready');
-
   if (state !== STATE.RECORDING) return;
-
   const pt = { lat, lon, ele, time };
   points.push(pt);
-
   if (lastPos) {
     const d = haversine(lastPos, pt);
     totalDist += d;
-    if (speed == null) {
-      const dt = (time - lastPos.time) / 1000;
-      if (dt > 0) currentSpeed = (d / dt) * 3.6;
-    }
+    if (speed == null) { const dt = (time - lastPos.time) / 1000; if (dt > 0) currentSpeed = (d / dt) * 3.6; }
   }
   lastPos = pt;
-  updateTrackOnMap();
-  updateStats();
+  updateTrackOnMap(); updateStats();
 }
 
 function onGeoError(err) {
@@ -849,18 +1062,24 @@ document.getElementById('btn-center').addEventListener('click', () => {
 function renderTracksList() {
   const list = document.getElementById('tracks-list');
   document.getElementById('panel-title').textContent = `Tracce di ${currentUser}`;
+  const btn = document.getElementById('panel-map-btn');
+  btn.textContent = showingAllTracks ? '🗺 Nascondi' : '🗺 Mappa';
+  btn.classList.toggle('active', showingAllTracks);
+  renderAggStats();
   const tracks = loadTracks();
   if (!tracks.length) {
-    list.innerHTML = '<p class="empty-msg">Nessuna traccia salvata.<br>Premi Avvia per registrare.</p>';
+    list.innerHTML = '<p class="empty-msg">Nessuna traccia salvata.<br>Premi Avvia per registrare o 📂 per importare un GPX.</p>';
     return;
   }
   list.innerHTML = tracks.map((t, i) => {
+    const eg   = elevGain(t.points || []);
     const date = t.date ? new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) : '';
+    const elev = eg.gain ? ` · ↑${eg.gain}m` : '';
     return `
     <div class="track-item" data-i="${i}">
       <div class="track-info" data-action="detail" data-i="${i}" style="flex:1;min-width:0">
         <div class="track-title">${escXml(t.title || 'Traccia')}</div>
-        <div class="track-summary">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${fmtPace(t.duration,t.dist)} /km${date ? ' · '+date : ''}</div>
+        <div class="track-summary">${(t.dist/1000).toFixed(2)} km · ${fmtDuration(t.duration)} · ${fmtPace(t.duration,t.dist)} /km${elev}${date ? ' · '+date : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <div class="track-chevron">›</div>
@@ -887,13 +1106,11 @@ document.getElementById('overlay').addEventListener('click', e => {
 });
 
 document.getElementById('tracks-list').addEventListener('click', e => {
-  const el = e.target.closest('[data-action]');
-  if (!el) return;
+  const el = e.target.closest('[data-action]'); if (!el) return;
   const { action, i } = el.dataset;
-  const idx = parseInt(i);
+  const idx    = parseInt(i);
   const tracks = loadTracks();
-  const t = tracks[idx];
-
+  const t      = tracks[idx];
   if (action === 'detail') {
     document.getElementById('overlay').classList.remove('open');
     showTrackDetail(idx);
@@ -904,7 +1121,9 @@ document.getElementById('tracks-list').addEventListener('click', e => {
   } else if (action === 'rm') {
     if (!confirm(`Eliminare "${t.title || 'questa traccia'}"?`)) return;
     tracks.splice(idx, 1); saveTracks(tracks);
-    updateTracksCount(); renderTracksList(); toast('Traccia eliminata');
+    updateTracksCount(); renderTracksList();
+    if (showingAllTracks) drawAutoGhosts();
+    toast('Traccia eliminata');
   }
 });
 
