@@ -230,9 +230,23 @@
     .nav-val  { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--blue); }
     .nav-val.warn { color: var(--danger); }
     .nav-lbl  { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    #nav-header { display: flex; align-items: center; justify-content: space-between; }
+    #nav-dir-label { font-size: .78rem; font-weight: 800; color: var(--blue); letter-spacing: .04em; }
+    #nav-header-btns { display: flex; gap: 6px; }
     #nav-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
     #nav-bar { height: 100%; background: var(--blue); border-radius: 3px; transition: width .5s ease; width: 0%; }
-    #btn-nav-exit { background: var(--blue-dim); color: var(--blue); font-size: .8rem; padding: 8px; }
+    #btn-nav-flip { background: var(--border); color: var(--text); font-size: .75rem; padding: 7px 10px; flex: none; }
+    #btn-nav-exit { background: var(--blue-dim); color: var(--blue); font-size: .75rem; padding: 7px 10px; flex: none; }
+
+    /* ── Direction picker ── */
+    #dir-overlay { display: none; position: fixed; inset: 0; z-index: 970; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 24px; }
+    #dir-overlay.open { display: flex; }
+    #dir-card { width: 100%; max-width: 360px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+    #dir-card-title { font-size: 1rem; font-weight: 800; }
+    #dir-card-name  { font-size: .78rem; color: var(--muted); margin-top: -4px; }
+    #dir-fwd { background: var(--blue-dim); color: var(--blue); padding: 16px; font-size: .9rem; }
+    #dir-rev { background: var(--border);   color: var(--text);  padding: 16px; font-size: .9rem; }
+    #dir-cancel { background: none; color: var(--muted); font-size: .78rem; padding: 6px; border: none; }
 
     /* ── Save dialog ── */
     #save-overlay { display: none; position: fixed; inset: 0; z-index: 960; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -313,6 +327,13 @@
 
   <!-- ── Navigation panel ── -->
   <div id="nav-panel">
+    <div id="nav-header">
+      <span id="nav-dir-label">→ Avanti</span>
+      <div id="nav-header-btns">
+        <button id="btn-nav-flip">⇄ Inverti</button>
+        <button id="btn-nav-exit">✕ Esci</button>
+      </div>
+    </div>
     <div id="nav-info">
       <div class="nav-stat">
         <span class="nav-val" id="nav-done">—</span>
@@ -328,7 +349,6 @@
       </div>
     </div>
     <div id="nav-bar-wrap"><div id="nav-bar"></div></div>
-    <button id="btn-nav-exit">✕ Esci dalla guida</button>
   </div>
 
   <div id="controls">
@@ -369,6 +389,17 @@
       <button id="detail-close">Chiudi</button>
     </div>
     <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- ── Direction picker ── -->
+<div id="dir-overlay">
+  <div id="dir-card">
+    <div id="dir-card-title">Scegli direzione</div>
+    <div id="dir-card-name"></div>
+    <button id="dir-fwd">→ Partenza → Arrivo</button>
+    <button id="dir-rev">← Arrivo → Partenza</button>
+    <button id="dir-cancel">Annulla</button>
   </div>
 </div>
 
@@ -919,7 +950,7 @@ function showTrackDetail(idx) {
     </div>`;
 
   document.getElementById('d-btn-map').onclick   = () => { closeDetail(); showOnMap(t); };
-  document.getElementById('d-btn-nav').onclick   = () => { closeDetail(); startNavigation(t); };
+  document.getElementById('d-btn-nav').onclick   = () => { closeDetail(); showDirPicker(t); };
   document.getElementById('d-btn-share').onclick = () => shareTrack(t);
   document.getElementById('d-btn-dl').onclick    = () => downloadGpx(t.points, t.title || 'traccia', t.author);
   document.getElementById('d-btn-rm').onclick    = () => {
@@ -1144,16 +1175,33 @@ function updateNavProgress(pos) {
   if (left < 30) { toast('Sei arrivato! 🎉'); stopNavigation(); }
 }
 
-function startNavigation(t) {
+let navReversed = false;
+
+function showDirPicker(t) {
+  document.getElementById('dir-card-name').textContent = t.title || 'Traccia';
+  document.getElementById('dir-overlay').classList.add('open');
+  document.getElementById('dir-fwd').onclick = () => { closeDirPicker(); startNavigation(t, false); };
+  document.getElementById('dir-rev').onclick = () => { closeDirPicker(); startNavigation(t, true);  };
+}
+function closeDirPicker() { document.getElementById('dir-overlay').classList.remove('open'); }
+document.getElementById('dir-cancel').addEventListener('click', closeDirPicker);
+document.getElementById('dir-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('dir-overlay')) closeDirPicker();
+});
+
+function startNavigation(t, reverse = false) {
   if (navMode) stopNavigation();
-  navTrack = t;
-  navDists = trackCumDists(t.points);
-  navMode  = true;
-  showOnMap(t);
-  centered = false;
+  navReversed = reverse;
+  const pts   = reverse ? [...t.points].reverse() : t.points;
+  navTrack    = { ...t, points: pts };
+  navDists    = trackCumDists(pts);
+  navMode     = true;
+  showOnMap(navTrack);
+  centered    = false;
   document.getElementById('nav-panel').classList.add('active');
+  document.getElementById('nav-dir-label').textContent = reverse ? '← Inverso' : '→ Avanti';
   if (!watchId) startWatch();
-  toast('Guida attiva');
+  toast('Guida attiva — ' + (reverse ? 'senso inverso' : 'senso originale'));
 }
 
 function stopNavigation() {
@@ -1165,6 +1213,18 @@ function stopNavigation() {
 document.getElementById('btn-nav-exit').addEventListener('click', () => {
   stopNavigation();
   toast('Guida disattivata');
+});
+
+document.getElementById('btn-nav-flip').addEventListener('click', () => {
+  if (!navMode || !navTrack) return;
+  const pts   = [...navTrack.points].reverse();
+  navTrack    = { ...navTrack, points: pts };
+  navDists    = trackCumDists(pts);
+  navReversed = !navReversed;
+  showOnMap(navTrack);
+  centered    = false;
+  document.getElementById('nav-dir-label').textContent = navReversed ? '← Inverso' : '→ Avanti';
+  toast('Direzione invertita');
 });
 
 // ── Geolocation ────────────────────────────────────────────────────────────
