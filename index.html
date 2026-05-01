@@ -83,6 +83,17 @@
     .map-btn.active        { background: var(--blue-dim);   border-color: var(--blue);   color: var(--blue); }
     .map-btn.active-accent { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
+    /* Basemap picker */
+    #basemap-menu { display: none; flex-direction: column; gap: 3px; }
+    #basemap-menu.open { display: flex; }
+    .bm-opt {
+      background: var(--bg); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 6px 12px; font-size: .72rem; font-weight: 700;
+      cursor: pointer; text-align: left; white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3); letter-spacing: .03em;
+    }
+    .bm-opt.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
     /* Search panel */
     #search-panel {
       position: absolute; top: 0; left: 0; right: 0; z-index: 20;
@@ -256,6 +267,12 @@
     <div id="map"></div>
 
     <div id="map-btns">
+      <button class="map-btn" id="btn-basemap">Carto ▾</button>
+      <div id="basemap-menu">
+        <button class="bm-opt active" data-bm="0">🗺 Carto</button>
+        <button class="bm-opt"        data-bm="1">⛰ Topo</button>
+        <button class="bm-opt"        data-bm="2">🚴 Cycle</button>
+      </div>
       <button class="map-btn" id="btn-search">🔍 Cerca</button>
       <button class="map-btn" id="btn-trails">Sentieri</button>
       <button class="map-btn" id="btn-3d">3D</button>
@@ -345,22 +362,46 @@
 const USERS = ['Marco', 'Stefano', 'Davide', 'Alessandra'];
 
 // ── Map setup ──────────────────────────────────────────────────────────────
+// ── Base maps ──────────────────────────────────────────────────────────────
+const BASE_MAPS = [
+  {
+    label: 'Carto',
+    tiles: [
+      'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
+    ],
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>',
+    maxzoom: 18
+  },
+  {
+    label: 'Topo',
+    tiles: ['https://tile.opentopomap.org/{z}/{x}/{y}.png'],
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a>, SRTM | Map: © <a href="https://opentopomap.org">OpenTopoMap</a>',
+    maxzoom: 17
+  },
+  {
+    label: 'Cycle',
+    tiles: ['https://tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png'],
+    attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    maxzoom: 18
+  }
+];
+let baseMapIdx = 0;
+
 const mapStyle = {
   version: 8,
   sources: {
-    carto: {
+    'base-src': {
       type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
-      ],
+      tiles: BASE_MAPS[0].tiles,
       tileSize: 256,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>'
+      maxzoom: BASE_MAPS[0].maxzoom,
+      attribution: BASE_MAPS[0].attribution
     }
   },
-  layers: [{ id: 'carto-raster', type: 'raster', source: 'carto' }]
+  layers: [{ id: 'base-layer', type: 'raster', source: 'base-src' }]
 };
 
 const map = new maplibregl.Map({
@@ -409,6 +450,40 @@ map.on('load', () => {
     paint: { 'line-color': '#4ade80', 'line-width': 4, 'line-opacity': 0.9 }
   });
 });
+
+// ── Basemap switcher ───────────────────────────────────────────────────────
+const btnBasemap   = document.getElementById('btn-basemap');
+const basemapMenu  = document.getElementById('basemap-menu');
+
+btnBasemap.addEventListener('click', e => {
+  e.stopPropagation();
+  basemapMenu.classList.toggle('open');
+});
+
+document.querySelectorAll('.bm-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = parseInt(btn.dataset.bm);
+    switchBaseMap(idx);
+  });
+});
+
+map.on('click', () => basemapMenu.classList.remove('open'));
+
+function switchBaseMap(idx) {
+  basemapMenu.classList.remove('open');
+  if (!mapLoaded || idx === baseMapIdx) return;
+  const bm = BASE_MAPS[idx];
+  if (map.getLayer('base-layer')) map.removeLayer('base-layer');
+  if (map.getSource('base-src')) map.removeSource('base-src');
+  map.addSource('base-src', {
+    type: 'raster', tiles: bm.tiles, tileSize: 256,
+    maxzoom: bm.maxzoom, attribution: bm.attribution
+  });
+  map.addLayer({ id: 'base-layer', type: 'raster', source: 'base-src' }, 'trails-layer');
+  baseMapIdx = idx;
+  btnBasemap.textContent = bm.label + ' ▾';
+  document.querySelectorAll('.bm-opt').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
 
 // ── Sentieri toggle ────────────────────────────────────────────────────────
 const btnTrails = document.getElementById('btn-trails');
