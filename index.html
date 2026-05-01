@@ -213,9 +213,26 @@
     .detail-actions { display: flex; gap: 10px; padding-bottom: 4px; }
     .detail-actions button { font-size: .85rem; padding: 13px 8px; }
     .btn-detail-map   { background: var(--border); color: var(--text); }
-    .btn-detail-share { background: var(--blue-dim); color: var(--blue); }
-    .btn-detail-dl    { background: var(--accent-dim); color: var(--accent); }
+    .btn-detail-nav   { background: var(--blue-dim); color: var(--blue); }
+    .btn-detail-share { background: var(--border); color: var(--muted); flex: 0 0 auto; padding: 13px 10px; }
+    .btn-detail-dl    { background: var(--accent-dim); color: var(--accent); flex: 0 0 auto; padding: 13px 10px; }
     .btn-detail-rm    { background: var(--danger-dim); color: var(--danger); flex: 0 0 48px; }
+
+    /* ── Navigation panel ── */
+    #nav-panel {
+      display: none; flex-direction: column; gap: 8px;
+      background: var(--surface); border-top: 2px solid var(--blue);
+      padding: 10px 16px; flex-shrink: 0;
+    }
+    #nav-panel.active { display: flex; }
+    #nav-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .nav-stat { display: flex; flex-direction: column; align-items: center; }
+    .nav-val  { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--blue); }
+    .nav-val.warn { color: var(--danger); }
+    .nav-lbl  { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    #nav-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    #nav-bar { height: 100%; background: var(--blue); border-radius: 3px; transition: width .5s ease; width: 0%; }
+    #btn-nav-exit { background: var(--blue-dim); color: var(--blue); font-size: .8rem; padding: 8px; }
 
     /* ── Save dialog ── */
     #save-overlay { display: none; position: fixed; inset: 0; z-index: 960; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -292,6 +309,26 @@
     <div class="stat"><span class="stat-val" id="s-time">00:00</span><span class="stat-lbl">durata</span></div>
     <div class="stat"><span class="stat-val" id="s-speed">0.0</span><span class="stat-lbl">km/h</span></div>
     <div class="stat"><span class="stat-val" id="s-pts">0</span><span class="stat-lbl">punti</span></div>
+  </div>
+
+  <!-- ── Navigation panel ── -->
+  <div id="nav-panel">
+    <div id="nav-info">
+      <div class="nav-stat">
+        <span class="nav-val" id="nav-done">—</span>
+        <span class="nav-lbl">km percorsi</span>
+      </div>
+      <div class="nav-stat">
+        <span class="nav-val" id="nav-off">—</span>
+        <span class="nav-lbl">m dal tracciato</span>
+      </div>
+      <div class="nav-stat">
+        <span class="nav-val" id="nav-left">—</span>
+        <span class="nav-lbl">km mancanti</span>
+      </div>
+    </div>
+    <div id="nav-bar-wrap"><div id="nav-bar"></div></div>
+    <button id="btn-nav-exit">✕ Esci dalla guida</button>
   </div>
 
   <div id="controls">
@@ -875,12 +912,14 @@ function showTrackDetail(idx) {
     </div>
     <div class="detail-actions">
       <button class="btn-detail-map"   id="d-btn-map">🗺 Mappa</button>
-      <button class="btn-detail-share" id="d-btn-share">⬆ Condividi</button>
-      <button class="btn-detail-dl"    id="d-btn-dl">↓ GPX</button>
+      <button class="btn-detail-nav"   id="d-btn-nav">▶ Segui</button>
+      <button class="btn-detail-share" id="d-btn-share">⬆</button>
+      <button class="btn-detail-dl"    id="d-btn-dl">↓</button>
       <button class="btn-detail-rm"    id="d-btn-rm">✕</button>
     </div>`;
 
   document.getElementById('d-btn-map').onclick   = () => { closeDetail(); showOnMap(t); };
+  document.getElementById('d-btn-nav').onclick   = () => { closeDetail(); startNavigation(t); };
   document.getElementById('d-btn-share').onclick = () => shareTrack(t);
   document.getElementById('d-btn-dl').onclick    = () => downloadGpx(t.points, t.title || 'traccia', t.author);
   document.getElementById('d-btn-rm').onclick    = () => {
@@ -945,11 +984,13 @@ function importGpx(file) {
       let dist = 0;
       for (let i = 1; i < pts.length; i++) dist += haversine(pts[i-1], pts[i]);
       const duration = Math.max(pts[pts.length-1].time - pts[0].time, 1000);
+      const newTrack = { points: pts, title, author: currentUser || '', dist, duration, date: pts[0].time };
       const tracks = loadTracks();
-      tracks.unshift({ points: pts, title, author: currentUser || '', dist, duration, date: pts[0].time });
+      tracks.unshift(newTrack);
       saveTracks(tracks);
       updateTracksCount();
       if (showingAllTracks) drawAutoGhosts();
+      showOnMap(newTrack);
       toast(`"${title}" importata — ${(dist/1000).toFixed(2)} km`);
     } catch(err) { toast('Errore: ' + err.message); }
   };
@@ -1061,6 +1102,71 @@ document.getElementById('btn-save-discard').addEventListener('click', () => {
   closeSaveDialog(); setUIState(STATE.IDLE); toast('Traccia scartata');
 });
 
+// ── Navigation (Segui) ─────────────────────────────────────────────────────
+let navMode = false, navTrack = null, navDists = null;
+
+function trackCumDists(pts) {
+  const d = [0];
+  for (let i = 1; i < pts.length; i++) d.push(d[i-1] + haversine(pts[i-1], pts[i]));
+  return d;
+}
+
+function nearestOnSegment(p, a, b) {
+  const dx = b.lon - a.lon, dy = b.lat - a.lat;
+  const len2 = dx*dx + dy*dy;
+  if (len2 < 1e-12) return { t: 0, nearest: a };
+  let t = ((p.lon - a.lon)*dx + (p.lat - a.lat)*dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return { t, nearest: { lat: a.lat + t*dy, lon: a.lon + t*dx } };
+}
+
+function updateNavProgress(pos) {
+  const pts = navTrack.points;
+  let bestDist = Infinity, bestIdx = 0, bestT = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const { t, nearest } = nearestOnSegment(pos, pts[i], pts[i+1]);
+    const d = haversine(pos, nearest);
+    if (d < bestDist) { bestDist = d; bestIdx = i; bestT = t; }
+  }
+  const segLen = navDists[bestIdx + 1] - navDists[bestIdx];
+  const done   = navDists[bestIdx] + bestT * segLen;
+  const total  = navDists[navDists.length - 1];
+  const left   = total - done;
+  const pct    = total > 0 ? (done / total * 100) : 0;
+
+  document.getElementById('nav-done').textContent = (done / 1000).toFixed(2);
+  document.getElementById('nav-left').textContent = (left / 1000).toFixed(2);
+  const offEl = document.getElementById('nav-off');
+  offEl.textContent = Math.round(bestDist);
+  offEl.className   = 'nav-val' + (bestDist > 50 ? ' warn' : '');
+  document.getElementById('nav-bar').style.width = pct.toFixed(1) + '%';
+
+  if (left < 30) { toast('Sei arrivato! 🎉'); stopNavigation(); }
+}
+
+function startNavigation(t) {
+  if (navMode) stopNavigation();
+  navTrack = t;
+  navDists = trackCumDists(t.points);
+  navMode  = true;
+  showOnMap(t);
+  centered = false;
+  document.getElementById('nav-panel').classList.add('active');
+  if (!watchId) startWatch();
+  toast('Guida attiva');
+}
+
+function stopNavigation() {
+  navMode = false; navTrack = null; navDists = null;
+  document.getElementById('nav-panel').classList.remove('active');
+  clearGhosts();
+}
+
+document.getElementById('btn-nav-exit').addEventListener('click', () => {
+  stopNavigation();
+  toast('Guida disattivata');
+});
+
 // ── Geolocation ────────────────────────────────────────────────────────────
 function startWatch() {
   if (watchId !== null) return;
@@ -1084,6 +1190,10 @@ function onPosition(pos) {
     posMarker = new maplibregl.Marker({ element: el }).setLngLat([lon, lat]).addTo(map);
   } else { posMarker.setLngLat([lon, lat]); }
   if (!centered) { map.jumpTo({ center: [lon, lat], zoom: 16 }); centered = true; }
+  if (navMode) {
+    map.easeTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), 15), duration: 500 });
+    updateNavProgress({ lat, lon });
+  }
   document.getElementById('status-dot').classList.add('ready');
   if (state !== STATE.RECORDING) return;
   const pt = { lat, lon, ele, time };
