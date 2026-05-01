@@ -271,7 +271,7 @@
       <div id="basemap-menu">
         <button class="bm-opt active" data-bm="0">🗺 Carto</button>
         <button class="bm-opt"        data-bm="1">⛰ Topo</button>
-        <button class="bm-opt"        data-bm="2">🚴 Cycle</button>
+        <button class="bm-opt"        data-bm="2">🌍 OSM</button>
       </div>
       <button class="map-btn" id="btn-search">🔍 Cerca</button>
       <button class="map-btn" id="btn-trails">Sentieri</button>
@@ -382,10 +382,14 @@ const BASE_MAPS = [
     maxzoom: 17
   },
   {
-    label: 'Cycle',
-    tiles: ['https://tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png'],
-    attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-    maxzoom: 18
+    label: 'OSM',
+    tiles: [
+      'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    ],
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxzoom: 19
   }
 ];
 let baseMapIdx = 0;
